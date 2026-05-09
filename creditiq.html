@@ -1,0 +1,3060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreditIQ — Análisis de Buró con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg2: #111418;
+  --bg3: #181c22;
+  --bg4: #1e232b;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaed;
+  --text2: #8b9199;
+  --text3: #5a6070;
+  --accent: #3b82f6;
+  --accent2: #1d4ed8;
+  --accentbg: rgba(59,130,246,0.1);
+  --accentborder: rgba(59,130,246,0.25);
+  --green: #22c55e;
+  --greenbg: rgba(34,197,94,0.1);
+  --yellow: #f59e0b;
+  --yellowbg: rgba(245,158,11,0.1);
+  --red: #ef4444;
+  --redbg: rgba(239,68,68,0.1);
+  --purple: #a855f7;
+  --purplebg: rgba(168,85,247,0.1);
+  --radius: 10px;
+  --radius-lg: 14px;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:rgba(10,12,15,0.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;letter-spacing:-0.3px}
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:15px;height:15px;fill:white}
+.nav-right{display:flex;align-items:center;gap:8px}
+.api-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg3);padding:5px 12px;border-radius:20px;border:1px solid var(--border)}
+.api-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.api-dot.off{background:var(--red)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:6px 14px;border-radius:var(--radius);font-family:var(--font);font-size:13px;cursor:pointer;transition:all 0.15s}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.btn-primary{background:var(--accent);border:none;color:white;padding:7px 16px;border-radius:var(--radius);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s}
+.btn-primary:hover{background:#2563eb}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* HOME */
+.home{max-width:800px;margin:0 auto;padding:48px 24px}
+.home-hero{text-align:center;margin-bottom:48px}
+.home-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;background:var(--accentbg);border:1px solid var(--accentborder);color:var(--accent);padding:4px 12px;border-radius:20px;margin-bottom:20px;font-weight:500}
+.home-badge svg{width:11px;height:11px}
+.home h1{font-size:36px;font-weight:300;letter-spacing:-1px;color:var(--text);margin-bottom:12px;line-height:1.2}
+.home h1 strong{font-weight:600}
+.home-sub{font-size:15px;color:var(--text2);max-width:420px;margin:0 auto 36px;line-height:1.7}
+
+/* SCRAMBLE HERO TITLE */
+.hero-title{
+  line-height:1;
+  letter-spacing:-1px;
+  margin-bottom:16px;
+}
+.hero-line1{
+  display:block;
+  font-family:'Syne',sans-serif;
+  font-size:48px;
+  font-weight:800;
+  letter-spacing:-2px;
+  color:var(--text);
+}
+.hero-line2{
+  display:block;
+  position:relative;
+  line-height:0.9;
+}
+.hero-line2-inner{
+  display:inline-block;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:88px;
+  font-weight:400;
+  letter-spacing:4px;
+  background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 35%,#38bdf8 65%,#818cf8 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 3.5s linear infinite;
+}
+@keyframes shimmer{
+  0%{background-position:100% 0}
+  100%{background-position:-100% 0}
+}
+.hero-char1{
+  display:inline-block;
+  min-width:0.28em;
+  color:var(--text);
+}
+.hero-char1.scrambling{
+  color:#2d3a4a;
+  font-family:'DM Mono',monospace;
+  font-size:36px;
+  font-weight:400;
+}
+.hero-char2{
+  display:inline-block;
+  min-width:0.3em;
+  background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 35%,#38bdf8 65%,#818cf8 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 3.5s linear infinite;
+}
+.hero-char2.scrambling{
+  background:none!important;
+  -webkit-text-fill-color:#2d3a4a!important;
+  font-family:'DM Mono',monospace!important;
+  font-size:60px!important;
+  font-weight:400!important;
+  letter-spacing:0!important;
+  animation:none!important;
+}
+.hero-glow{
+  position:relative;
+  display:inline-block;
+}
+.hero-glow-layer{
+  position:absolute;
+  inset:0;
+  font-family:'Bebas Neue',sans-serif;
+  font-weight:400;
+  font-size:88px;
+  letter-spacing:4px;
+  color:#a78bfa;
+  filter:blur(22px);
+  opacity:0.45;
+  pointer-events:none;
+  white-space:nowrap;
+  animation:glowPulse 3s ease-in-out infinite;
+  user-select:none;
+}
+@keyframes glowPulse{
+  0%,100%{opacity:0.35;filter:blur(18px)}
+  50%{opacity:0.6;filter:blur(22px)}
+}
+
+/* API KEY INPUT */
+.api-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px}
+.api-section label{font-size:12px;color:var(--text2);display:block;margin-bottom:8px;font-weight:500;letter-spacing:0.02em}
+.api-row{display:flex;gap:8px}
+.api-input{flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 14px;border-radius:var(--radius);font-family:var(--mono);font-size:12px;outline:none;transition:border 0.15s}
+.api-input:focus{border-color:var(--accent)}
+.api-input::placeholder{color:var(--text3)}
+
+/* UPLOAD ZONE */
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:40px 24px;text-align:center;background:var(--bg2);cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:var(--accentbg)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{width:48px;height:48px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.upload-icon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.5}
+.upload-title{font-size:16px;font-weight:500;margin-bottom:6px}
+.upload-sub{font-size:13px;color:var(--text2)}
+.bureau-pills{display:flex;justify-content:center;gap:8px;margin-top:16px}
+.bureau-pill{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);color:var(--text2)}
+
+/* FILE SELECTED */
+.file-info{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:12px}
+.file-icon-wrap{width:36px;height:36px;background:var(--redbg);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.file-icon-wrap svg{width:18px;height:18px;stroke:var(--red);fill:none;stroke-width:1.5}
+.file-details{flex:1}
+.file-name{font-size:13px;font-weight:500;color:var(--text)}
+.file-size{font-size:11px;color:var(--text2)}
+.file-clear{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;line-height:0}
+.file-clear:hover{color:var(--red)}
+
+/* CLIENT FORM */
+.form-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-top:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group label{font-size:11px;color:var(--text2);display:block;margin-bottom:5px;font-weight:500;letter-spacing:0.03em;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-family:var(--font);font-size:13px;outline:none;transition:border 0.15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group select option{background:var(--bg3)}
+.form-group textarea{resize:vertical;min-height:60px}
+.analyze-btn{width:100%;padding:13px;background:var(--accent);border:none;color:white;border-radius:var(--radius-lg);font-family:var(--font);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:12px;letter-spacing:-0.2px}
+.analyze-btn:hover:not(:disabled){background:#2563eb;transform:translateY(-1px)}
+.analyze-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center}
+.stat-num{font-size:22px;font-weight:600;color:var(--accent);letter-spacing:-0.5px;margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--text2)}
+
+/* PROCESSING VIEW */
+.processing{max-width:560px;margin:0 auto;padding:60px 24px;text-align:center}
+.processing h2{font-size:22px;font-weight:400;margin-bottom:8px;letter-spacing:-0.5px}
+.processing-sub{font-size:14px;color:var(--text2);margin-bottom:36px}
+.steps-list{text-align:left;display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.proc-step{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg2);transition:all 0.3s}
+.proc-step.done{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.05)}
+.proc-step.active{border-color:var(--accentborder);background:var(--accentbg)}
+.proc-step-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:500}
+.proc-step.done .proc-step-icon{background:var(--greenbg);color:var(--green)}
+.proc-step.active .proc-step-icon{background:var(--accentbg);color:var(--accent)}
+.proc-step.pending .proc-step-icon{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.proc-step-text{flex:1}
+.proc-step-name{font-size:13px;font-weight:500;color:var(--text)}
+.proc-step.pending .proc-step-name{color:var(--text2)}
+.proc-step-detail{font-size:11px;color:var(--text2)}
+.proc-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.tag-done{background:var(--greenbg);color:var(--green)}
+.tag-active{background:var(--accentbg);color:var(--accent)}
+.tag-pending{background:var(--bg3);color:var(--text3)}
+.progress-bar-outer{height:3px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.progress-bar-inner{height:100%;background:var(--accent);border-radius:3px;transition:width 0.5s ease}
+.progress-pct{font-size:12px;color:var(--text2);text-align:right}
+.spinner{width:16px;height:16px;border:2px solid var(--accentborder);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REPORT VIEW */
+.report-view{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 52px)}
+.report-sidebar{border-right:1px solid var(--border);background:var(--bg2);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;position:sticky;top:52px;height:calc(100vh - 52px)}
+.report-main{padding:24px;overflow-y:auto}
+
+/* SCORE CARD */
+.score-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;text-align:center}
+.score-big{font-size:52px;font-weight:600;letter-spacing:-2px;margin-bottom:2px}
+.score-label-text{font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px}
+.score-range-text{font-size:11px;color:var(--text2)}
+.score-bar{height:8px;border-radius:4px;background:linear-gradient(to right,#ef4444 0%,#f59e0b 40%,#22c55e 75%,#3b82f6 100%);margin:14px 0 4px;position:relative}
+.score-needle{position:absolute;top:-3px;width:4px;height:14px;background:white;border-radius:2px;transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,0.5)}
+.score-targets{display:flex;justify-content:space-between;font-size:10px;color:var(--text3)}
+
+/* SIDEBAR SECTIONS */
+.sidebar-section-title{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);padding-bottom:8px;border-bottom:1px solid var(--border)}
+.factor-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.factor-row:last-child{border:none}
+.factor-name{font-size:12px;color:var(--text);flex:1}
+.factor-track{width:56px;height:3px;background:var(--bg4);border-radius:3px;overflow:hidden;flex-shrink:0}
+.factor-fill{height:100%;border-radius:3px}
+.factor-val{font-size:11px;color:var(--text2);width:36px;text-align:right;flex-shrink:0}
+
+/* ALERTS */
+.alert{display:flex;gap:10px;padding:10px 12px;border-radius:var(--radius);margin-bottom:6px}
+.alert:last-child{margin:0}
+.alert-red{background:var(--redbg);border-left:2px solid var(--red)}
+.alert-yellow{background:var(--yellowbg);border-left:2px solid var(--yellow)}
+.alert-green{background:var(--greenbg);border-left:2px solid var(--green)}
+.alert-blue{background:var(--accentbg);border-left:2px solid var(--accent)}
+.alert-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.alert-text{font-size:12px;line-height:1.5;color:var(--text)}
+.alert-text strong{font-weight:500}
+
+/* REPORT MAIN SECTIONS */
+.section{margin-bottom:24px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-0.2px}
+.section-count{font-size:11px;color:var(--text2);background:var(--bg3);padding:2px 8px;border-radius:20px}
+
+/* AI SUMMARY */
+.ai-box{background:var(--accentbg);border:1px solid var(--accentborder);border-radius:var(--radius-lg);padding:16px;margin-bottom:24px}
+.ai-box-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ai-chip{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;background:var(--accent);color:white;padding:3px 9px;border-radius:20px}
+.ai-box-text{font-size:13px;color:var(--text);line-height:1.75;white-space:pre-wrap}
+.typing-cursor{display:inline-block;width:2px;height:14px;background:var(--accent);animation:blink 0.8s infinite;vertical-align:middle;margin-left:2px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ACCOUNTS TABLE */
+.accounts-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text);vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;display:inline-block}
+.pill-green{background:var(--greenbg);color:var(--green)}
+.pill-red{background:var(--redbg);color:var(--red)}
+.pill-yellow{background:var(--yellowbg);color:var(--yellow)}
+.pill-blue{background:var(--accentbg);color:var(--accent)}
+.pill-gray{background:var(--bg3);color:var(--text2)}
+.pill-purple{background:var(--purplebg);color:var(--purple)}
+.impact-cell{display:flex;align-items:center;gap:6px;cursor:default}
+.impact-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.impact-dot-red{background:var(--red)}
+.impact-dot-yellow{background:var(--yellow)}
+.impact-dot-green{background:var(--green)}
+.impact-label{font-size:11px;font-weight:500}
+.impact-label-red{color:var(--red)}
+.impact-label-yellow{color:var(--yellow)}
+.impact-label-green{color:var(--green)}
+.impact-explain{font-size:11px;color:var(--text2);max-width:220px;line-height:1.5;margin-top:2px}
+
+/* ACTION PLAN */
+.action-card{display:flex;gap:14px;padding:16px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg2);margin-bottom:10px;transition:border-color 0.15s}
+.action-card:hover{border-color:var(--border2)}
+.action-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.action-content{flex:1}
+.action-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.action-detail{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px}
+.impact-chip{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500;display:inline-block}
+.impact-high{background:var(--redbg);color:var(--red)}
+.impact-med{background:var(--yellowbg);color:var(--yellow)}
+.impact-low{background:var(--greenbg);color:var(--green)}
+
+/* DISPUTE ROWS */
+.dispute-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.dispute-row:last-child{border:none}
+.dispute-info{flex:1}
+.dispute-name{font-size:13px;font-weight:500;color:var(--text)}
+.dispute-reason{font-size:11px;color:var(--text2);margin-top:2px}
+.btn-gen{font-size:11px;padding:6px 14px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-family:var(--font);cursor:pointer;font-weight:500;transition:all 0.15s;white-space:nowrap}
+.btn-gen:hover{background:#2563eb}
+
+/* LETTER MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:14px;font-weight:500}
+.modal-close{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;line-height:1;padding:2px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.letter-text{font-family:var(--mono);font-size:12px;line-height:1.8;color:var(--text);background:var(--bg3);padding:16px;border-radius:var(--radius);white-space:pre-wrap;min-height:200px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ERROR */
+.error-box{background:var(--redbg);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--red);margin-top:12px;display:none}
+
+/* REPORT HEADER */
+.report-topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.client-meta{display:flex;align-items:center;gap:12px}
+.client-avatar{width:36px;height:36px;border-radius:50%;background:var(--accentbg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.client-name{font-size:15px;font-weight:500;letter-spacing:-0.3px}
+.client-sub{font-size:11px;color:var(--text2)}
+.topbar-actions{display:flex;gap:8px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .report-view{grid-template-columns:1fr}
+  .report-sidebar{position:static;height:auto}
+  .form-row{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 16px;border-radius:var(--radius);font-size:13px;z-index:300;transform:translateY(80px);opacity:0;transition:all 0.25s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* INTRO */
+.intro-char{
+  display:inline-block;
+  transition:opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+  will-change:transform,opacity;
+}
+#introOverlay.fade-out{
+  opacity:0;
+  transition:opacity 0.7s ease;
+  pointer-events:none;
+}
+/* PAGE REVEAL — elements start hidden, revealed top→bottom after intro */
+.reveal-item{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-item.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative}
+.login-box{width:100%;max-width:380px;position:relative;z-index:1}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:32px}
+.login-logo-mark{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.login-logo-mark svg{fill:white;width:18px;height:18px}
+.login-logo-text{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:32px;backdrop-filter:blur(12px)}
+.login-title{font-size:20px;font-weight:500;color:var(--text);letter-spacing:-0.4px;margin-bottom:6px;text-align:center}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:28px}
+.login-field{margin-bottom:16px}
+.login-field label{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:6px}
+.login-field input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:11px 14px;border-radius:var(--radius);font-family:var(--font);font-size:14px;outline:none;transition:border 0.15s}
+.login-field input:focus{border-color:var(--accent)}
+.login-field input::placeholder{color:var(--text3)}
+.login-btn{width:100%;padding:13px;background:var(--accent);border:none;color:white;border-radius:var(--radius-lg);font-family:var(--font);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;margin-top:8px;letter-spacing:-0.2px;position:relative;overflow:hidden}
+.login-btn:hover:not(:disabled){background:#2563eb;transform:translateY(-1px)}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.login-error{background:var(--redbg);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--red);margin-top:12px;display:none;text-align:center}
+.login-footer{text-align:center;margin-top:20px;font-size:11px;color:var(--text3)}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.login-divider span{font-size:11px;color:var(--text3)}
+.login-loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+/* MODE TABS */
+.mode-tabs{display:flex;gap:8px;margin-bottom:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:5px}
+.mode-tab{display:flex;align-items:center;gap:7px;flex:1;justify-content:center;padding:9px 16px;border:none;background:transparent;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:500;border-radius:var(--radius);cursor:pointer;transition:all 0.15s}
+.mode-tab:hover{color:var(--text);background:var(--bg3)}
+.mode-tab.active{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.mode-tab svg{opacity:0.7}
+.mode-tab.active svg{opacity:1;stroke:var(--accent)}
+/* COMPARE SLOT */
+.cmp-slot{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);transition:border-color 0.15s}
+.cmp-slot.has-file{border-color:var(--accentborder)}
+.cmp-slot-num{width:24px;height:24px;border-radius:50%;background:var(--accentbg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.cmp-slot-label{font-size:12px;color:var(--text2);flex:1}
+.cmp-slot-name{font-size:13px;font-weight:500;color:var(--text)}
+.cmp-slot-date{font-size:11px;color:var(--text2);margin-top:1px}
+.upload-zone-inner{border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:36px 24px;text-align:center;background:var(--bg2);cursor:pointer;transition:all 0.2s}
+.upload-zone-inner:hover{border-color:var(--accent);background:var(--accentbg)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  @page{margin:14mm 12mm;size:A4}
+  .nav,#introOverlay,#viewHome,#viewLogin,#viewProcessing,#viewCompare:not(.active),
+  .topbar-actions,canvas,#adminModal,#addUserModal,#letterModal,#exportMenuWrap{display:none!important}
+  .view{display:none!important}
+  .view.active{display:block!important}
+  /* Report sidebar — horizontal for print */
+  .report-view{display:block!important}
+  .report-sidebar{position:static!important;height:auto!important;width:100%!important;border:none!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:12px!important;margin-bottom:20px!important;padding:0!important}
+  .report-main{padding:0!important}
+  /* No cuts */
+  .section,.action-card,.ai-box,.score-card,.alert,.dispute-row,tr,
+  #cmpReportBody>div,[style*="page-break"]{page-break-inside:avoid!important;break-inside:avoid!important}
+  /* Tables */
+  table{page-break-inside:auto!important;width:100%!important}
+  thead{display:table-header-group!important}
+  tbody tr{page-break-inside:avoid!important;break-inside:avoid!important}
+  /* Comparison score cards */
+  .cmp-scores-row{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))!important;page-break-inside:avoid!important}
+  /* Topbar */
+  .report-topbar{page-break-inside:avoid!important;border-bottom:1px solid #333!important;padding-bottom:12px!important;margin-bottom:16px!important}
+  /* Keep colors on dark backgrounds */
+  .ai-box{background:#0d1926!important;border:1px solid #1e3a5f!important}
+  .action-card{background:#111418!important;border:1px solid #222!important}
+  .score-card{background:#111418!important}
+  #ambientCanvas,#loginCanvas,#introCanvas{display:none!important}
+  .no-print{display:none!important}
+  /* Comparison report */
+  #cmpReportBody{padding:0!important}
+  #cmpReportBody .section{page-break-inside:avoid!important;break-inside:avoid!important;margin-bottom:20px!important}
+  #cmpReportBody>div>div{page-break-inside:avoid!important;break-inside:avoid!important}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav reveal-item" id="ri-nav">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7.5 3.5-1 6-4 6-7.5V4L8 1z"/></svg>
+    </div>
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:400;letter-spacing:2px;background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite">Moaied IQ</span>
+  </div>
+  <div class="nav-right">
+    <div class="api-status" id="apiStatus">
+      <div class="api-dot" id="apiDot"></div>
+      <span id="apiStatusText">Sistema listo</span>
+    </div>
+    <button class="btn-ghost" onclick="showHome()">Nuevo análisis</button>
+    <button class="btn-ghost" id="adminNavBtn" onclick="openAdmin()" style="display:none;color:var(--yellow)">⚙ Usuarios</button>
+    <button class="btn-ghost" onclick="doLogout()" style="color:var(--text3)">Salir</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- INTRO OVERLAY -->
+<div id="introOverlay" style="position:fixed;inset:0;z-index:999;background:#0a0c0f;display:flex;align-items:center;justify-content:center;overflow:hidden">
+  <canvas id="introCanvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+  <div id="introTitle" style="position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:0;font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,12vw,140px);font-weight:400;letter-spacing:8px;line-height:1">
+    <!-- M -->
+    <span class="intro-char" id="ic-m" style="opacity:0;transform:translateY(-120px) rotate(-15deg);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite">M</span>
+    <!-- O -->
+    <span class="intro-char" id="ic-o" style="opacity:0;transform:translateX(-140px) scale(0.3);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite 0.2s">O</span>
+    <!-- A -->
+    <span class="intro-char" id="ic-a" style="opacity:0;transform:translateY(120px) rotate(15deg);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite 0.4s">A</span>
+    <!-- I -->
+    <span class="intro-char" id="ic-i" style="opacity:0;transform:translateX(140px) scale(0.3);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite 0.1s">I</span>
+    <!-- E -->
+    <span class="intro-char" id="ic-e" style="opacity:0;transform:translateY(-100px) translateX(-40px);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite 0.3s">E</span>
+    <!-- D -->
+    <span class="intro-char" id="ic-d" style="opacity:0;transform:translateX(100px) rotate(20deg);background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite 0.5s">D</span>
+    <!-- SPACE -->
+    <span style="display:inline-block;width:0.35em;opacity:0" id="ic-space"></span>
+    <!-- IQ — visible from start -->
+    <span id="ic-iq" style="background:linear-gradient(90deg,#60a5fa 0%,#a78bfa 40%,#38bdf8 70%,#818cf8 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3.5s linear infinite;filter:drop-shadow(0 0 24px rgba(96,165,250,0.6))">IQ</span>
+  </div>
+  <div id="introTagline" style="position:absolute;bottom:15%;left:50%;transform:translateX(-50%);font-size:13px;color:rgba(139,145,153,0);letter-spacing:0.15em;text-transform:uppercase;font-family:'DM Sans',sans-serif;font-weight:500;transition:color 1s ease;white-space:nowrap">Credit Intelligence Platform</div>
+</div>
+
+<!-- LOGIN VIEW -->
+<div class="view" id="viewLogin">
+  <canvas id="loginCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.6"></canvas>
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="login-logo-mark">
+          <svg viewBox="0 0 16 16"><path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7.5 3.5-1 6-4 6-7.5V4L8 1z"/></svg>
+        </div>
+        <span class="login-logo-text">Moaied IQ</span>
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <div class="login-card" id="panelLogin">
+        <div class="login-title">Bienvenido de vuelta</div>
+        <div class="login-sub">Ingresa tus credenciales para acceder al sistema</div>
+        <div class="login-field">
+          <label>Usuario</label>
+          <input type="text" id="loginUser" placeholder="usuario" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+        </div>
+        <div class="login-field">
+          <label>Contraseña</label>
+          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div id="loginError" class="login-error"></div>
+        <button class="login-btn" id="loginBtn" onclick="doLogin()">Iniciar sesión</button>
+        <div class="login-divider"><span>¿no tienes cuenta?</span></div>
+        <button onclick="showPanel('register')" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-lg);font-family:var(--font);font-size:14px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">Solicitar acceso</button>
+        <div class="login-footer" style="margin-top:16px">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Acceso restringido · Solo personal autorizado
+        </div>
+      </div>
+
+      <!-- REGISTER PANEL -->
+      <div class="login-card" id="panelRegister" style="display:none">
+        <div class="login-title">Solicitar acceso</div>
+        <div class="login-sub">Tu solicitud será revisada por el administrador</div>
+        <div class="login-field">
+          <label>Nombre completo</label>
+          <input type="text" id="regName" placeholder="Juan García" onkeydown="if(event.key==='Enter')document.getElementById('regUser').focus()">
+        </div>
+        <div class="login-field">
+          <label>Usuario deseado</label>
+          <input type="text" id="regUser" placeholder="juangarcia" onkeydown="if(event.key==='Enter')document.getElementById('regPass').focus()">
+        </div>
+        <div class="login-field">
+          <label>Contraseña</label>
+          <input type="password" id="regPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')document.getElementById('regPass2').focus()">
+        </div>
+        <div class="login-field">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="regPass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()">
+        </div>
+        <div id="regError" class="login-error"></div>
+        <div id="regSuccess" class="login-error" style="background:var(--greenbg);border-color:rgba(34,197,94,0.25);color:var(--green);display:none"></div>
+        <button class="login-btn" id="regBtn" onclick="doRegister()">Enviar solicitud</button>
+        <div class="login-divider"><span>ya tienes cuenta</span></div>
+        <button onclick="showPanel('login')" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-lg);font-family:var(--font);font-size:14px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">← Volver al login</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:620px;max-height:85vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:15px;font-weight:500;color:var(--text)">Panel de usuarios</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">Gestión de accesos · Solo admin</div>
+      </div>
+      <button onclick="closeAdmin()" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;line-height:1;padding:2px">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:20px">
+      <!-- Pending -->
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Solicitudes pendientes</div>
+      <div id="pendingList"><div style="color:var(--text2);font-size:13px;padding:12px 0">No hay solicitudes pendientes</div></div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:20px 0 12px">Usuarios activos</div>
+      <div id="activeList"></div>
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="showAddUser()" class="btn-primary" style="font-size:13px;padding:7px 16px">+ Agregar usuario</button>
+      <button onclick="closeAdmin()" class="btn-ghost" style="font-size:13px;padding:7px 16px">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div id="addUserModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:360px">
+    <div style="padding:18px 22px;border-bottom:1px solid var(--border);font-size:14px;font-weight:500">Agregar usuario</div>
+    <div style="padding:20px 22px">
+      <div class="login-field"><label>Nombre</label><input type="text" id="addName" placeholder="Nombre completo"></div>
+      <div class="login-field"><label>Usuario</label><input type="text" id="addUser" placeholder="usuario"></div>
+      <div class="login-field"><label>Contraseña</label><input type="password" id="addPass" placeholder="••••••••"></div>
+      <div id="addError" class="login-error"></div>
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="confirmAddUser()" class="btn-primary" style="font-size:13px;padding:7px 16px">Crear usuario</button>
+      <button onclick="document.getElementById('addUserModal').style.display='none'" class="btn-ghost" style="font-size:13px;padding:7px 16px">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME VIEW -->
+<div class="view active" id="viewHome">
+  <canvas id="ambientCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0;transition:opacity 1.2s ease"></canvas>
+  <div class="home" style="position:relative;z-index:1">
+    <div class="home-hero reveal-item" id="ri-0">
+      <div class="home-badge">
+        <svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 0L7.5 4.5H12L8.25 7.25L9.75 12L6 9.25L2.25 12L3.75 7.25L0 4.5H4.5L6 0Z"/></svg>
+        Análisis con IA · Equifax · Experian · TransUnion
+      </div>
+      <h1 class="hero-title">
+        <span class="hero-line2"><span class="hero-glow"><span class="hero-glow-layer" id="heroGlowBg" aria-hidden="true">Moaied IQ</span><span class="hero-line2-inner" id="heroLine2">Moaied IQ</span></span></span>
+      </h1>
+      <p class="home-sub">Análisis inteligente de burós de crédito para maximizar el score de tus clientes.</p>
+    </div>
+
+    <!-- MODE TABS -->
+    <div class="mode-tabs reveal-item" id="uploadZone" style="cursor:default">
+      <button class="mode-tab active" id="tabSingle" onclick="switchMode('single')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Análisis individual
+      </button>
+      <button class="mode-tab" id="tabCompare" onclick="switchMode('compare')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="18" rx="1"/><rect x="13" y="3" width="8" height="18" rx="1"/></svg>
+        Comparar burós
+        <span style="font-size:10px;background:var(--accentbg);color:var(--accent);padding:1px 7px;border-radius:20px;margin-left:4px;font-weight:600">NUEVO</span>
+      </button>
+    </div>
+
+    <!-- SINGLE MODE -->
+    <div id="modeSingle">
+      <div class="upload-zone-inner" id="uploadZoneInner" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept=".pdf" style="display:none" onchange="handleFile(event)">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div class="upload-title">Arrastra el PDF aquí</div>
+        <div class="upload-sub">O haz clic para seleccionar · Soporta archivos grandes</div>
+        <div class="bureau-pills">
+          <span class="bureau-pill">Equifax</span>
+          <span class="bureau-pill">Experian</span>
+          <span class="bureau-pill">TransUnion</span>
+        </div>
+      </div>
+
+      <div id="fileInfoWrap" style="display:none">
+        <div class="file-info">
+          <div class="file-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="file-details">
+            <div class="file-name" id="fileName"></div>
+            <div class="file-size" id="fileSize"></div>
+          </div>
+          <button class="file-clear" onclick="clearFile()" title="Quitar">✕</button>
+        </div>
+        <div class="form-section">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre del cliente</label>
+              <input type="text" id="clientName" placeholder="Ej. Juan García López">
+            </div>
+            <div class="form-group">
+              <label>Bureau de crédito</label>
+              <select id="bureauSelect">
+                <option value="Equifax">Equifax</option>
+                <option value="Experian">Experian</option>
+                <option value="TransUnion">TransUnion</option>
+                <option value="Desconocido">No especificado</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Notas del asesor (opcional)</label>
+            <textarea id="advisorNotes" placeholder="Ej. Meta: comprar casa en 12 meses..."></textarea>
+          </div>
+          <div id="errorBox" class="error-box"></div>
+          <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">Analizar reporte con IA →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARE MODE -->
+    <div id="modeCompare" style="display:none">
+      <div class="form-section" style="margin-bottom:12px">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre del cliente</label>
+            <input type="text" id="cmpClientName" placeholder="Ej. Juan García López">
+          </div>
+          <div class="form-group">
+            <label>Notas (opcional)</label>
+            <input type="text" id="cmpNotes" placeholder="Ej. Seguimiento a 6 meses de reparación">
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF SLOTS -->
+      <div id="cmpSlots" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px"></div>
+
+      <button onclick="addCmpSlot()" style="width:100%;padding:10px;background:transparent;border:1.5px dashed var(--border2);color:var(--text2);border-radius:var(--radius-lg);font-family:var(--font);font-size:13px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'" id="addSlotBtn">+ Agregar otro buró</button>
+
+      <div id="cmpErrorBox" class="error-box" style="margin-top:10px"></div>
+      <button class="analyze-btn" onclick="startComparison()" id="compareBtn" style="margin-top:12px">Comparar burós con IA →</button>
+    </div>
+
+    <div class="stats-row reveal-item" id="ri-3">
+      <div class="stat-card"><div class="stat-num">PDF</div><div class="stat-label">Archivos grandes soportados</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Bureaus compatibles</div></div>
+      <div class="stat-card"><div class="stat-num">FCRA</div><div class="stat-label">Disputas bajo ley federal</div></div>
+      <div class="stat-card"><div class="stat-num">IA</div><div class="stat-label">Plan de acción priorizado</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON REPORT VIEW -->
+<div class="view" id="viewCompare">
+  <div class="report-topbar">
+    <div class="client-meta">
+      <div class="client-avatar" id="cmpAvatar">CR</div>
+      <div>
+        <div class="client-name" id="cmpTitle">Comparación de burós</div>
+        <div class="client-sub" id="cmpSub">Análisis comparativo completado</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-ghost" onclick="window.print()">Exportar PDF</button>
+      <button class="btn-ghost" onclick="showHome()">← Nuevo análisis</button>
+    </div>
+  </div>
+  <div style="padding:24px;max-width:1100px;margin:0 auto" id="cmpReportBody">
+    <div style="color:var(--text2);font-size:13px">Cargando comparación...</div>
+  </div>
+</div>
+
+<!-- PROCESSING VIEW -->
+<div class="view" id="viewProcessing">
+  <div class="processing">
+    <h2>Analizando el reporte</h2>
+    <p class="processing-sub" id="processingClient">Procesando buró de crédito...</p>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+    <div class="progress-pct" id="progressPct">0%</div>
+    <div class="steps-list" id="stepsList">
+      <div class="proc-step pending" id="pstep0">
+        <div class="proc-step-icon">1</div>
+        <div class="proc-step-text"><div class="proc-step-name">Extrayendo texto del PDF</div><div class="proc-step-detail">Leyendo páginas del documento</div></div>
+        <span class="proc-tag tag-pending">Pendiente</span>
+      </div>
+      <div class="proc-step pending" id="pstep1">
+        <div class="proc-step-icon">2</div>
+        <div class="proc-step-text"><div class="proc-step-name">Procesando contenido</div><div class="proc-step-detail">Preparando para análisis IA</div></div>
+        <span class="proc-tag tag-pending">Pendiente</span>
+      </div>
+      <div class="proc-step pending" id="pstep2">
+        <div class="proc-step-icon">3</div>
+        <div class="proc-step-text"><div class="proc-step-name">Identificando cuentas y factores</div><div class="proc-step-detail">Detectando deudas, pagos, colecciones</div></div>
+        <span class="proc-tag tag-pending">Pendiente</span>
+      </div>
+      <div class="proc-step pending" id="pstep3">
+        <div class="proc-step-icon">4</div>
+        <div class="proc-step-text"><div class="proc-step-name">Detectando errores disputables</div><div class="proc-step-detail">Revisando contra normas FCRA</div></div>
+        <span class="proc-tag tag-pending">Pendiente</span>
+      </div>
+      <div class="proc-step pending" id="pstep4">
+        <div class="proc-step-icon">5</div>
+        <div class="proc-step-text"><div class="proc-step-name">Generando plan de acción</div><div class="proc-step-detail">Ordenando pasos por impacto en score</div></div>
+        <span class="proc-tag tag-pending">Pendiente</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT VIEW -->
+<div class="view" id="viewReport">
+  <div class="report-topbar">
+    <div class="client-meta">
+      <div class="client-avatar" id="reportAvatar">CR</div>
+      <div>
+        <div class="client-name" id="reportClientName">Cliente</div>
+        <div class="client-sub" id="reportClientSub">Bureau · Análisis completado</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div style="position:relative;display:inline-block" id="exportMenuWrap">
+        <button class="btn-ghost" onclick="toggleExportMenu()" id="exportBtn">Exportar PDF ▾</button>
+        <div id="exportMenu" style="display:none;position:absolute;right:0;top:36px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);min-width:200px;z-index:50;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+          <div onclick="printVersion('client')" style="padding:11px 16px;font-size:13px;cursor:pointer;color:var(--text);border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+            <div style="font-weight:500">📄 Versión Cliente</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">Score, cuentas, recomendaciones</div>
+          </div>
+          <div onclick="printVersion('internal')" style="padding:11px 16px;font-size:13px;cursor:pointer;color:var(--text)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+            <div style="font-weight:500">🔒 Versión Interna</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">Reporte completo + cartas de disputa</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-ghost" onclick="showHome()">← Nuevo análisis</button>
+    </div>
+  </div>
+
+  <div class="report-view">
+    <!-- SIDEBAR -->
+    <div class="report-sidebar">
+      <div class="score-card">
+        <div class="score-big" id="scoreNum" style="color:var(--yellow)">—</div>
+        <div class="score-label-text" id="scoreLabel" style="color:var(--yellow)">Analizando...</div>
+        <div class="score-range-text" id="scoreTarget"></div>
+        <div class="score-bar">
+          <div class="score-needle" id="scoreNeedle" style="left:50%"></div>
+        </div>
+        <div class="score-targets"><span>300</span><span>580</span><span>670</span><span>740</span><span>850</span></div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title" style="margin-bottom:10px">Factores del score</div>
+        <div id="factorsContainer">
+          <div class="factor-row"><span class="factor-name">Cargando...</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title" style="margin-bottom:10px">Alertas detectadas</div>
+        <div id="alertsContainer">
+          <div class="alert alert-blue"><span class="alert-icon">⋯</span><div class="alert-text">Analizando...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="report-main" id="reportMain">
+      <div class="ai-box">
+        <div class="ai-box-header">
+          <svg width="14" height="14" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span class="ai-chip">Análisis IA</span>
+        </div>
+        <div class="ai-box-text" id="aiSummary">Generando análisis...<span class="typing-cursor"></span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Cuentas del reporte</span>
+          <span class="section-count" id="accountCount">—</span>
+        </div>
+        <div class="accounts-wrap">
+          <table>
+            <thead><tr>
+              <th>Acreedor</th><th>Tipo</th><th>Balance</th><th>Límite / Orig.</th><th>Utiliz.</th><th>Estado</th><th>Impacto al crédito</th><th>Acción IA</th>
+            </tr></thead>
+            <tbody id="accountsBody">
+              <tr><td colspan="7" style="color:var(--text2);text-align:center;padding:24px">Cargando cuentas...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Plan de acción — ordenado por impacto</span>
+        </div>
+        <div id="actionPlan">
+          <div style="color:var(--text2);font-size:13px">Generando plan...</div>
+        </div>
+      </div>
+
+      <div class="section internal-only">
+        <div class="section-header">
+          <span class="section-title">Cartas de disputa disponibles</span>
+          <span class="section-count" style="background:var(--redbg);color:var(--red)">🔒 Interno</span>
+        </div>
+        <div id="disputesList">
+          <div style="color:var(--text2);font-size:13px">Detectando disputas...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LETTER MODAL -->
+<div class="modal-overlay" id="letterModal" style="display:none" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Carta de disputa</span>
+      <button class="modal-close" onclick="document.getElementById('letterModal').style.display='none'">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="letter-text" id="letterContent">Generando carta...<span class="typing-cursor"></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="copyLetter()">Copiar carta</button>
+      <button class="btn-ghost" onclick="document.getElementById('letterModal').style.display='none'">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// Fallback if CDN worker fails
+window.addEventListener('error', e => {
+  if (e.filename && e.filename.includes('pdf.worker')) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+  }
+});
+
+let apiKey = '';
+let currentFile = null;
+let currentReport = null;
+let currentCmpReport = null;
+let currentUser = null;
+
+// ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
+const SB_URL = 'https://tprgaqbrtudsgngpvbzo.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwcmdhcWJydHVkc2duZ3B2YnpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjMzNzMsImV4cCI6MjA5MzgzOTM3M30.yvJNzBz3L3mUSNgIkLD08Ri7iU_-wmb6ujeWZvWzb14';
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    throw new Error(e.message || e.error || 'Supabase error ' + res.status);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+// ─── ADMIN credentials (hardcoded, not in DB) ─────────────────────────────────
+const ADMIN = { user: 'admin', pass: 'moaied2024' };
+
+// Init
+window.onload = () => {
+  setupDragDrop();
+  startLoginCanvas();
+};
+
+// ─── PANEL TOGGLE ─────────────────────────────────────────────────────────────
+function showPanel(name) {
+  document.getElementById('panelLogin').style.display    = name==='login'    ? '' : 'none';
+  document.getElementById('panelRegister').style.display = name==='register' ? '' : 'none';
+  if (name==='register') {
+    ['regName','regUser','regPass','regPass2'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('regError').style.display='none';
+    document.getElementById('regSuccess').style.display='none';
+    document.getElementById('regBtn').disabled=false;
+    document.getElementById('regBtn').textContent='Enviar solicitud';
+  }
+}
+
+// ─── LOGIN ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const btn  = document.getElementById('loginBtn');
+  const err  = document.getElementById('loginError');
+  err.style.display='none';
+  if (!user||!pass) { err.textContent='Completa todos los campos'; err.style.display='block'; return; }
+
+  btn.disabled=true; btn.innerHTML='<span class="login-loading"></span>Verificando...';
+
+  try {
+    let ok=false, role='user';
+
+    if (user===ADMIN.user && pass===ADMIN.pass) {
+      ok=true; role='superadmin';
+    } else {
+      const rows = await sbFetch(`users?username=eq.${encodeURIComponent(user)}&approved=eq.true&select=username,password,full_name,role`);
+      if (rows.length && rows[0].password === pass) { ok=true; role=rows[0].role||'user'; }
+    }
+
+    if (ok) {
+      currentUser = { username: user, role };
+      // Show admin button for superadmin and approver
+      const canManage = role==='superadmin' || role==='approver';
+      document.getElementById('adminNavBtn').style.display = canManage ? '' : 'none';
+      document.getElementById('adminNavBtn').textContent = role==='superadmin' ? '⚙ Usuarios' : '⚙ Solicitudes';
+      const card = document.querySelector('#panelLogin');
+      const logo = document.querySelector('.login-logo');
+      card.style.transition='opacity 0.4s ease,transform 0.4s ease';
+      logo.style.transition='opacity 0.4s ease';
+      card.style.opacity='0'; card.style.transform='translateY(-12px)'; logo.style.opacity='0';
+      setTimeout(() => {
+        stopLoginCanvas(); setView('viewHome');
+        if (window.startAmbient) window.startAmbient();
+        const items=['ri-nav','ri-0','uploadZone','ri-3'];
+        items.forEach((id,i) => setTimeout(() => {
+          const el=document.getElementById(id); if(el) el.classList.add('visible');
+        }, i*100));
+      }, 420);
+    } else {
+      btn.disabled=false; btn.innerHTML='Iniciar sesión';
+      err.textContent='Usuario o contraseña incorrectos'; err.style.display='block';
+      shakeCard('#panelLogin');
+    }
+  } catch(e) {
+    btn.disabled=false; btn.innerHTML='Iniciar sesión';
+    err.textContent='Error de conexión: ' + e.message; err.style.display='block';
+  }
+}
+
+// ─── REGISTER REQUEST ─────────────────────────────────────────────────────────
+async function doRegister() {
+  const name  = document.getElementById('regName').value.trim();
+  const user  = document.getElementById('regUser').value.trim().toLowerCase();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const err   = document.getElementById('regError');
+  const succ  = document.getElementById('regSuccess');
+  const btn   = document.getElementById('regBtn');
+  err.style.display='none'; succ.style.display='none';
+
+  if (!name||!user||!pass||!pass2) { err.textContent='Completa todos los campos'; err.style.display='block'; return; }
+  if (pass!==pass2) { err.textContent='Las contraseñas no coinciden'; err.style.display='block'; return; }
+  if (pass.length<6) { err.textContent='Contraseña mínimo 6 caracteres'; err.style.display='block'; return; }
+  if (user===ADMIN.user) { err.textContent='Ese usuario no está disponible'; err.style.display='block'; return; }
+
+  btn.disabled=true; btn.textContent='Enviando...';
+
+  try {
+    // Check if username already exists in users or pending
+    const existing = await sbFetch(`users?username=eq.${encodeURIComponent(user)}&select=username`);
+    if (existing.length) { err.textContent='Ese usuario ya existe'; err.style.display='block'; btn.disabled=false; btn.textContent='Enviar solicitud'; return; }
+    const existPending = await sbFetch(`pending_requests?username=eq.${encodeURIComponent(user)}&select=username`);
+    if (existPending.length) { err.textContent='Ya hay una solicitud pendiente con ese usuario'; err.style.display='block'; btn.disabled=false; btn.textContent='Enviar solicitud'; return; }
+
+    await sbFetch('pending_requests', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ username: user, password: pass, full_name: name })
+    });
+
+    succ.textContent='✓ Solicitud enviada — el administrador la revisará pronto';
+    succ.style.display='block';
+    setTimeout(() => showPanel('login'), 3000);
+  } catch(e) {
+    err.textContent='Error: ' + e.message; err.style.display='block';
+    btn.disabled=false; btn.textContent='Enviar solicitud';
+  }
+}
+
+// ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
+function openAdmin() {
+  const role = currentUser?.role;
+  if (role!=='superadmin' && role!=='approver') return;
+  document.getElementById('adminModal').style.display='flex';
+  // Superadmin sees full panel; approver sees only pending requests
+  const addBtn = document.querySelector('#adminModal .btn-primary');
+  if (addBtn) addBtn.style.display = role==='superadmin' ? '' : 'none';
+  renderAdminPanel();
+}
+function closeAdmin() {
+  document.getElementById('adminModal').style.display='none';
+}
+
+async function renderAdminPanel() {
+  const pl = document.getElementById('pendingList');
+  const al = document.getElementById('activeList');
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  pl.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px 0">Cargando...</div>';
+  al.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px 0">Cargando...</div>';
+
+  const roleBadge = r => {
+    const map = {
+      superadmin: 'background:#1d4ed8;color:white',
+      approver:   'background:var(--yellowbg);color:var(--yellow)',
+      user:       'background:var(--bg3);color:var(--text2)'
+    };
+    const label = { superadmin:'Super Admin', approver:'Aprobador', user:'Usuario' };
+    return `<span style="font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;${map[r]||map.user}">${label[r]||r}</span>`;
+  };
+
+  try {
+    const [pending, users] = await Promise.all([
+      sbFetch('pending_requests?select=*&order=requested_at.asc'),
+      sbFetch('users?select=*&order=created_at.asc')
+    ]);
+
+    // Pending
+    if (!pending.length) {
+      pl.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px 0;border-bottom:1px solid var(--border)">No hay solicitudes pendientes</div>';
+    } else {
+      pl.innerHTML = pending.map(p => `
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--yellowbg);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${p.full_name[0].toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${p.full_name}</div>
+            <div style="font-size:11px;color:var(--text2)">@${p.username} · ${new Date(p.requested_at).toLocaleDateString('es-DO')}</div>
+          </div>
+          <button onclick="approveUser('${p.id}','${p.username}','${p.password}','${p.full_name}')" style="font-size:11px;padding:5px 12px;background:var(--greenbg);color:var(--green);border:1px solid rgba(34,197,94,0.3);border-radius:var(--radius);cursor:pointer;font-family:var(--font)">✓ Aprobar</button>
+          <button onclick="rejectUser('${p.id}','${p.username}')" style="font-size:11px;padding:5px 12px;background:var(--redbg);color:var(--red);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius);cursor:pointer;font-family:var(--font)">✕ Rechazar</button>
+        </div>`).join('');
+    }
+
+    // Active users — superadmin sees roles + delete + change role; approver sees read-only
+    if (!users.length) {
+      al.innerHTML='<div style="color:var(--text2);font-size:13px;padding:12px 0">No hay usuarios activos aún</div>';
+    } else {
+      al.innerHTML = `
+        <div style="display:flex;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:4px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;flex:1">Nombre</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;width:120px">Usuario</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;width:110px">Rol</div>
+          ${isSuperAdmin ? '<div style="width:150px"></div>' : ''}
+        </div>` +
+        users.map(u => `
+          <div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1;font-size:13px;color:var(--text)">${u.full_name}</div>
+            <div style="width:120px;font-size:12px;color:var(--text2)">@${u.username}</div>
+            <div style="width:110px">${roleBadge(u.role||'user')}</div>
+            ${isSuperAdmin ? `
+            <div style="width:150px;display:flex;gap:6px;justify-content:flex-end">
+              <select onchange="changeRole('${u.id}','${u.username}',this.value)" style="font-size:11px;padding:3px 6px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);font-family:var(--font);cursor:pointer">
+                <option value="user" ${(u.role||'user')==='user'?'selected':''}>Usuario</option>
+                <option value="approver" ${u.role==='approver'?'selected':''}>Aprobador</option>
+              </select>
+              <button onclick="deleteUser('${u.id}','${u.username}')" style="font-size:10px;padding:4px 8px;background:var(--redbg);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);cursor:pointer;font-family:var(--font)">✕</button>
+            </div>` : ''}
+          </div>`).join('');
+    }
+  } catch(e) {
+    pl.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;
+  }
+}
+
+async function changeRole(id, username, newRole) {
+  try {
+    await sbFetch(`users?id=eq.${id}`, {
+      method:'PATCH', prefer:'return=minimal',
+      body: JSON.stringify({ role: newRole })
+    });
+    showToast(`✓ @${username} ahora es ${newRole==='approver'?'Aprobador':'Usuario'}`);
+    renderAdminPanel();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function approveUser(id, username, password, full_name) {
+  try {
+    await sbFetch('users', {
+      method:'POST', prefer:'return=minimal',
+      body: JSON.stringify({ username, password, full_name, approved: true, role: 'user' })
+    });
+    await sbFetch(`pending_requests?id=eq.${id}`, { method:'DELETE', prefer:'return=minimal' });
+    showToast(`✓ Usuario @${username} aprobado`);
+    renderAdminPanel();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function rejectUser(id, username) {
+  try {
+    await sbFetch(`pending_requests?id=eq.${id}`, { method:'DELETE', prefer:'return=minimal' });
+    showToast(`Solicitud de @${username} rechazada`);
+    renderAdminPanel();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+async function deleteUser(id, username) {
+  if (!confirm(`¿Eliminar al usuario @${username}?`)) return;
+  try {
+    await sbFetch(`users?id=eq.${id}`, { method:'DELETE', prefer:'return=minimal' });
+    showToast(`Usuario @${username} eliminado`);
+    renderAdminPanel();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+function showAddUser() {
+  document.getElementById('addUserModal').style.display='flex';
+  ['addName','addUser','addPass'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('addError').style.display='none';
+}
+
+async function confirmAddUser() {
+  const name = document.getElementById('addName').value.trim();
+  const user = document.getElementById('addUser').value.trim().toLowerCase();
+  const pass = document.getElementById('addPass').value;
+  const err  = document.getElementById('addError');
+  err.style.display='none';
+  if (!name||!user||!pass) { err.textContent='Completa todos los campos'; err.style.display='block'; return; }
+  if (user===ADMIN.user) { err.textContent='Nombre de usuario no disponible'; err.style.display='block'; return; }
+  try {
+    await sbFetch('users', {
+      method:'POST', prefer:'return=minimal',
+      body: JSON.stringify({ username: user, password: pass, full_name: name, approved: true, role: 'user' })
+    });
+    document.getElementById('addUserModal').style.display='none';
+    showToast(`✓ Usuario @${user} creado`);
+    renderAdminPanel();
+  } catch(e) {
+    err.textContent = e.message.includes('unique') ? 'Ese usuario ya existe' : 'Error: '+e.message;
+    err.style.display='block';
+  }
+}
+
+function shakeCard(sel) {
+  const card = document.querySelector(sel);
+  if (!card) return;
+  let s=0;
+  const shake = setInterval(() => {
+    card.style.transform=`translateX(${s%2===0?-6:6}px)`;
+    s++; if(s>6){clearInterval(shake);card.style.transform='';}
+  }, 50);
+}
+
+// Login canvas — simple ambient particles
+let loginRaf = null;
+function startLoginCanvas() {
+  const c = document.getElementById('loginCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let W = c.width = window.innerWidth;
+  let H = c.height = window.innerHeight;
+  const pts = Array.from({length:60}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: 0.4 + Math.random()*1.8,
+    vx: (Math.random()-0.5)*0.2, vy: (Math.random()-0.5)*0.15,
+    alpha: 0.05 + Math.random()*0.12,
+    color: ['#60a5fa','#a78bfa','#38bdf8'][Math.floor(Math.random()*3)]
+  }));
+  // Add 3 large orbs
+  const orbs = [
+    {x:0.2,y:0.3,r:0.28,color:'#3b82f6',a:0.04,t:0},
+    {x:0.8,y:0.7,r:0.22,color:'#a78bfa',a:0.03,t:2},
+    {x:0.5,y:0.1,r:0.18,color:'#38bdf8',a:0.025,t:4},
+  ];
+  function draw() {
+    loginRaf = requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o => {
+      o.t += 0.0012;
+      const cx=(o.x+Math.sin(o.t*1.2)*0.06)*W, cy=(o.y+Math.cos(o.t)*0.05)*H;
+      const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,o.r*Math.max(W,H));
+      grad.addColorStop(0,o.color+Math.round(o.a*255).toString(16).padStart(2,'0'));
+      grad.addColorStop(1,o.color+'00');
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,o.r*Math.max(W,H),0,Math.PI*2); ctx.fill();
+    });
+    pts.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color; ctx.globalAlpha=p.alpha; ctx.fill(); ctx.globalAlpha=1;
+    });
+  }
+  draw();
+}
+function stopLoginCanvas() {
+  cancelAnimationFrame(loginRaf);
+  const c = document.getElementById('loginCanvas');
+  if (c) { c.style.transition='opacity 0.4s'; c.style.opacity='0'; }
+}
+
+function doLogout() {
+  if (window.stopAmbient) window.stopAmbient();
+  // Reset login form
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginBtn').innerHTML = 'Iniciar sesión';
+  document.getElementById('loginBtn').disabled = false;
+  const card = document.querySelector('.login-card');
+  const logo = document.querySelector('.login-logo');
+  if (card) { card.style.opacity='0'; card.style.transform='translateY(16px)'; }
+  setView('viewLogin');
+  const lc = document.getElementById('loginCanvas');
+  if (lc) { lc.style.transition='opacity 0.4s'; lc.style.opacity='0.6'; startLoginCanvas(); }
+  setTimeout(() => {
+    if (card) { card.style.transition='opacity 0.5s ease,transform 0.5s ease'; card.style.opacity='1'; card.style.transform='translateY(0)'; }
+    if (logo) { logo.style.opacity='1'; }
+    document.getElementById('loginUser').focus();
+  }, 100);
+}
+
+function updateApiStatus() {
+  document.getElementById('apiDot').className = 'api-dot';
+  document.getElementById('apiStatusText').textContent = 'Sistema listo';
+}
+
+function setupDragDrop() {
+  const zone = document.getElementById('uploadZoneInner');
+  if (!zone) return;
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') processFileSelected(file);
+    else showToast('Solo se aceptan archivos PDF');
+  });
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (file) processFileSelected(file);
+}
+
+function processFileSelected(file) {
+  currentFile = file;
+  document.getElementById('fileInfoWrap').style.display = 'block';
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = formatBytes(file.size) + ' · ' + (file.size > 5*1024*1024 ? 'Archivo grande — se procesará en bloques' : 'Listo para analizar');
+}
+
+function clearFile() {
+  currentFile = null;
+  document.getElementById('fileInfoWrap').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+}
+
+function formatBytes(b) {
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/1024/1024).toFixed(1) + ' MB';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showHome() { setView('viewHome'); }
+
+function setView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'viewHome') { if (window.startAmbient) window.startAmbient(); }
+  else { if (window.stopAmbient) window.stopAmbient(); }
+}
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = msg; b.style.display = 'block';
+}
+function hideError() { document.getElementById('errorBox').style.display = 'none'; }
+
+// ─── EXTRACT PDF TEXT ─────────────────────────────────────────────────────────
+async function extractPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  
+  // Try with worker first, fall back to no-worker mode if it fails
+  let pdf;
+  try {
+    pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  } catch(e) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+    const copy = arrayBuffer.slice(0);
+    pdf = await pdfjsLib.getDocument({ data: copy, disableWorker: true }).promise;
+  }
+  
+  const totalPages = pdf.numPages;
+  let fullText = '';
+  
+  // Process all pages
+  for (let i = 1; i <= totalPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    fullText += `\n--- Página ${i} ---\n` + pageText;
+    const pct = Math.round((i / totalPages) * 30);
+    setProgress(pct, `Leyendo página ${i} de ${totalPages}...`);
+  }
+  return fullText;
+}
+
+// ─── CHUNK TEXT for large PDFs ────────────────────────────────────────────────
+function chunkText(text, maxChars = 80000) {
+  if (text.length <= maxChars) return [text];
+  const chunks = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = start + maxChars;
+    // Try to break at a paragraph/newline boundary
+    if (end < text.length) {
+      const breakPoint = text.lastIndexOf('\n', end);
+      if (breakPoint > start + maxChars * 0.5) end = breakPoint;
+    }
+    chunks.push(text.slice(start, end));
+    start = end;
+  }
+  return chunks;
+}
+
+// ─── MAIN ANALYSIS ────────────────────────────────────────────────────────────
+async function startAnalysis() {
+  hideError();
+  if (!currentFile) { showError('Selecciona un archivo PDF.'); return; }
+
+  const clientName = document.getElementById('clientName').value.trim() || 'Cliente';
+  const bureau = document.getElementById('bureauSelect').value;
+  const notes = document.getElementById('advisorNotes').value.trim();
+
+  // Setup processing view
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('processingClient').textContent = `Analizando buró de ${clientName} · ${bureau}`;
+  setView('viewProcessing');
+  setProgress(0, '');
+
+  try {
+    // Step 1: Extract PDF
+    stepActive(0); setProgress(5, 'Extrayendo texto del PDF...');
+    const rawText = await extractPdfText(currentFile);
+    stepDone(0); setProgress(35, 'Texto extraído');
+
+    // Step 2: Process/chunk
+    stepActive(1); setProgress(40, 'Preparando contenido...');
+    const chunks = chunkText(rawText, 90000);
+    let combinedSummary = rawText;
+
+    // If multi-chunk, do a pre-pass summary of each chunk first
+    if (chunks.length > 1) {
+      setProgress(42, `PDF grande detectado — procesando ${chunks.length} bloques...`);
+      const summaries = [];
+      for (let i = 0; i < chunks.length; i++) {
+        setProgress(42 + Math.round((i/chunks.length)*8), `Resumiendo bloque ${i+1} de ${chunks.length}...`);
+        const chunkSummary = await summarizeChunk(chunks[i], i+1, chunks.length, clientName, bureau);
+        summaries.push(chunkSummary);
+      }
+      combinedSummary = summaries.join('\n\n--- SIGUIENTE BLOQUE ---\n\n');
+    }
+    stepDone(1); setProgress(52, 'Contenido procesado');
+
+    // Step 3: Main IA analysis
+    stepActive(2); setProgress(55, 'Identificando cuentas y factores...');
+    const analysis = await runMainAnalysis(combinedSummary, clientName, bureau, notes);
+    stepDone(2); setProgress(75, 'Análisis completado');
+
+    // Step 4: Parse & detect disputes
+    stepActive(3); setProgress(82, 'Detectando errores disputables...');
+    await new Promise(r => setTimeout(r, 400)); // small visual pause
+    stepDone(3); setProgress(92, 'Disputas detectadas');
+
+    // Step 5: Render
+    stepActive(4); setProgress(96, 'Generando reporte visual...');
+    renderReport(analysis, clientName, bureau);
+    stepDone(4); setProgress(100, 'Listo');
+
+    await new Promise(r => setTimeout(r, 500));
+    setView('viewReport');
+
+  } catch (err) {
+    setView('viewHome');
+    document.getElementById('analyzeBtn').disabled = false;
+    showError('Error: ' + (err.message || 'Algo salió mal. Verifica tu API key.'));
+    console.error(err);
+  }
+}
+
+// ─── CHUNK PRE-SUMMARIZER ─────────────────────────────────────────────────────
+async function summarizeChunk(chunk, num, total, name, bureau) {
+  const res = await callClaude([{
+    role: 'user',
+    content: `Eres un asistente que resume reportes de crédito. Este es el bloque ${num} de ${total} del buró de ${bureau} de ${name}.
+    
+Extrae y resume SOLO los datos concretos: cuentas encontradas (nombre acreedor, balance, estado, tipo), pagos tarde, colecciones, consultas, información personal, y cualquier dato relevante para análisis crediticio.
+
+Sé conciso pero exhaustivo con los datos numéricos. No hagas recomendaciones aún.
+
+TEXTO DEL BLOQUE:
+${chunk}`
+  }], 1500);
+  return `RESUMEN BLOQUE ${num}:\n${res}`;
+}
+
+// ─── MAIN AI ANALYSIS ─────────────────────────────────────────────────────────
+async function runMainAnalysis(text, name, bureau, notes) {
+  const notesSection = notes ? `\nNotas del asesor: ${notes}` : '';
+  
+  const prompt = `Eres CreditIQ, un experto en reparación de crédito en Estados Unidos con profundo conocimiento de la FCRA, FDCPA, y estrategias de score building.
+
+Analiza el siguiente reporte de buró de crédito de ${bureau} del cliente "${name}".${notesSection}
+
+Responde ÚNICAMENTE con un JSON válido con esta estructura exacta (sin markdown, sin texto extra):
+
+{
+  "score": {
+    "current": 620,
+    "label": "FAIR",
+    "color": "yellow",
+    "target": "Objetivo: 700+ en 12 meses",
+    "needle_pct": 45
+  },
+  "summary": "Párrafo de 3-5 oraciones describiendo el perfil crediticio del cliente, los problemas principales, y el potencial de mejora. Incluye estimados de puntos ganables.",
+  "factors": [
+    {"name": "Payment History", "pct": 72, "color": "red", "label": "72% — Pagos atrasados"},
+    {"name": "Utilization", "pct": 81, "color": "red", "label": "81% — Muy alto"},
+    {"name": "Credit Age", "pct": 55, "color": "yellow", "label": "4.2 años promedio"},
+    {"name": "Credit Mix", "pct": 60, "color": "green", "label": "Aceptable"},
+    {"name": "New Credit", "pct": 20, "color": "green", "label": "Pocas consultas"}
+  ],
+  "alerts": [
+    {"type": "red", "icon": "⚠", "text": "<strong>Descripción alerta crítica</strong> — detalle"},
+    {"type": "yellow", "icon": "!", "text": "<strong>Descripción alerta moderada</strong> — detalle"},
+    {"type": "green", "icon": "✓", "text": "<strong>Aspecto positivo</strong> — detalle"}
+  ],
+  "accounts": [
+    {
+      "creditor": "Chase Freedom",
+      "type": "Tarjeta",
+      "balance": "$4,200",
+      "limit": "$5,000",
+      "utilization": "84%",
+      "status": "current",
+      "status_label": "Al corriente",
+      "impact_level": "high",
+      "impact_explanation": "Utilización al 84% está penalizando severamente el score. Representa el 30% del cálculo total.",
+      "action": "dispute",
+      "action_label": "Pagar down"
+    }
+  ],  "action_plan": [
+    {
+      "priority": 1,
+      "title": "Título del paso de acción",
+      "detail": "Explicación detallada del paso, qué hacer, cómo hacerlo, referencias legales si aplica (FCRA, FDCPA).",
+      "impact": "high",
+      "impact_label": "+40-60 pts estimados",
+      "num_color": "red"
+    }
+  ],
+  "disputes": [
+    {
+      "creditor": "Capital One",
+      "reason": "FCRA §611 — Fecha de actividad incorrecta",
+      "bureau": "Equifax",
+      "letter_type": "fcra_611",
+      "law": "FCRA §611"
+    }
+  ]
+}
+
+Reglas CRÍTICAS para mantener el JSON corto:
+- score.color: "green" si >720, "yellow" si 580-720, "red" si <580
+- score.needle_pct: porcentaje de 0-100 donde cae el score (300=0%, 850=100%)
+- factors.color: "red" si malo, "yellow" si regular, "green" si bueno
+- accounts.status: "current", "collection", "late", "derogatory", "closed"
+- accounts.impact_level: "high" si es colección/derogatorio/utilización >50%, "medium" si late payment o utilización 30-50%, "low" si utilización leve o consulta reciente, "none" si está al corriente sin issues, "positive" si tiene historial largo positivo
+- accounts.impact_explanation: 1 oración concisa explicando exactamente cómo y por qué afecta (o no) el score
+- accounts: máximo 12 cuentas, prioriza colecciones y derogatorias primero
+- action_plan: exactamente 5 pasos, ni más ni menos
+- alerts: máximo 5 alertas
+- disputes: máximo 4, solo con base real bajo FCRA/FDCPA
+- summary: máximo 3 oraciones, sin adornos
+- Usa datos REALES del reporte. Si no hay score explícito, estímalo por los factores.
+- NO incluyas comentarios ni texto fuera del JSON.
+
+CONTENIDO DEL REPORTE:
+${text.slice(0, 60000)}`;
+
+  const json = await callClaude([{role:'user', content: prompt}], 16000);
+  
+  // Robust JSON parsing
+  let cleaned = json.trim();
+  // Strip markdown fences
+  cleaned = cleaned.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
+  // Find the JSON object boundaries
+  const start = cleaned.indexOf('{');
+  let end = cleaned.lastIndexOf('}');
+  if (start === -1) throw new Error('No se encontró JSON en la respuesta');
+  if (end === -1) {
+    // JSON was truncated — try to close it gracefully
+    cleaned = cleaned.slice(start);
+    // Close any open arrays/objects
+    let depth = 0, inStr = false, esc = false;
+    for (const ch of cleaned) {
+      if (esc) { esc = false; continue; }
+      if (ch === '\\' && inStr) { esc = true; continue; }
+      if (ch === '"') inStr = !inStr;
+      if (!inStr) { if (ch === '{' || ch === '[') depth++; else if (ch === '}' || ch === ']') depth--; }
+    }
+    // Remove trailing incomplete key/value
+    cleaned = cleaned.replace(/,\s*"[^"]*"\s*:\s*[^,}\]]*$/, '');
+    cleaned = cleaned.replace(/,\s*$/, '');
+    while (depth > 0) { cleaned += depth > 1 ? ']}' : '}'; depth--; }
+  } else {
+    cleaned = cleaned.slice(start, end + 1);
+  }
+  return JSON.parse(cleaned);
+}
+
+// ─── CALL CLAUDE API ──────────────────────────────────────────────────────────
+async function callClaude(messages, max_tokens = 4000) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': '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',
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens, messages })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+// ─── RENDER REPORT ────────────────────────────────────────────────────────────
+function renderReport(data, clientName, bureau) {
+  currentReport = { data, clientName, bureau };
+
+  // Header
+  const initials = clientName.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('reportAvatar').textContent = initials;
+  document.getElementById('reportClientName').textContent = clientName;
+  document.getElementById('reportClientSub').textContent = `${bureau} · Análisis completado · ${new Date().toLocaleDateString('es-DO')}`;
+
+  // Score
+  const s = data.score;
+  const colors = {green:'#22c55e', yellow:'#f59e0b', red:'#ef4444'};
+  const c = colors[s.color] || colors.yellow;
+  document.getElementById('scoreNum').textContent = s.current || '—';
+  document.getElementById('scoreNum').style.color = c;
+  document.getElementById('scoreLabel').textContent = s.label || '';
+  document.getElementById('scoreLabel').style.color = c;
+  document.getElementById('scoreTarget').textContent = s.target || '';
+  document.getElementById('scoreNeedle').style.left = (s.needle_pct || 50) + '%';
+
+  // Factors
+  const fc = document.getElementById('factorsContainer');
+  fc.innerHTML = (data.factors || []).map(f => {
+    const barColor = {red:'var(--red)', yellow:'var(--yellow)', green:'var(--green)'}[f.color] || 'var(--accent)';
+    return `<div class="factor-row">
+      <span class="factor-name">${f.name}</span>
+      <div class="factor-track"><div class="factor-fill" style="width:${f.pct}%;background:${barColor}"></div></div>
+      <span class="factor-val">${f.label || f.pct+'%'}</span>
+    </div>`;
+  }).join('');
+
+  // Alerts
+  const ac = document.getElementById('alertsContainer');
+  ac.innerHTML = (data.alerts || []).map(a => `
+    <div class="alert alert-${a.type || 'blue'}">
+      <span class="alert-icon">${a.icon || '!'}</span>
+      <div class="alert-text">${a.text}</div>
+    </div>`).join('');
+
+  // AI Summary
+  const summaryEl = document.getElementById('aiSummary');
+  summaryEl.innerHTML = '';
+  typeText(summaryEl, data.summary || 'Análisis completado.', 12);
+
+  // Accounts
+  const ab = document.getElementById('accountsBody');
+  const statusPills = {
+    current: 'pill-green', collection: 'pill-red', late: 'pill-yellow',
+    derogatory: 'pill-red', closed: 'pill-gray'
+  };
+  const actionPills = {
+    dispute: 'pill-purple', pay: 'pill-yellow', maintain: 'pill-green',
+    negotiate: 'pill-yellow', 'pay_delete': 'pill-red', goodwill: 'pill-blue'
+  };
+  const accounts = data.accounts || [];
+  document.getElementById('accountCount').textContent = accounts.length + ' cuentas';
+  ab.innerHTML = accounts.length ? accounts.map(a => {
+    const impactLevel = a.impact_level || 'none';
+    const impactMap = {
+      high:    {dot:'impact-dot-red',    label:'impact-label-red',    text:'Afectando — Alto'},
+      medium:  {dot:'impact-dot-yellow', label:'impact-label-yellow', text:'Afectando — Medio'},
+      low:     {dot:'impact-dot-yellow', label:'impact-label-yellow', text:'Afectando — Bajo'},
+      none:    {dot:'impact-dot-green',  label:'impact-label-green',  text:'No afecta'},
+      positive:{dot:'impact-dot-green',  label:'impact-label-green',  text:'Beneficia el score'},
+    };
+    const imp = impactMap[impactLevel] || impactMap.none;
+    const explain = a.impact_explanation || '';
+    return `<tr>
+      <td style="font-weight:500">${a.creditor || '—'}</td>
+      <td style="color:var(--text2)">${a.type || '—'}</td>
+      <td>${a.balance || '—'}</td>
+      <td style="color:var(--text2)">${a.limit || '—'}</td>
+      <td>${a.utilization ? `<span class="pill ${parseInt(a.utilization)>30 ? 'pill-red':'pill-green'}">${a.utilization}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td><span class="pill ${statusPills[a.status]||'pill-gray'}">${a.status_label||a.status||'—'}</span></td>
+      <td>
+        <div class="impact-cell">
+          <div class="impact-dot ${imp.dot}"></div>
+          <div>
+            <div class="impact-label ${imp.label}">${imp.text}</div>
+            ${explain ? `<div class="impact-explain">${explain}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><span class="pill ${actionPills[a.action]||'pill-blue'}">${a.action_label||a.action||'—'}</span></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" style="color:var(--text2);text-align:center;padding:24px">No se detectaron cuentas específicas</td></tr>`;
+
+  // Action plan
+  const ap = document.getElementById('actionPlan');
+  const numColors = {red:'var(--redbg);color:var(--red)', yellow:'var(--yellowbg);color:var(--yellow)', blue:'var(--accentbg);color:var(--accent)', green:'var(--greenbg);color:var(--green)'};
+  ap.innerHTML = (data.action_plan || []).map(step => {
+    const nc = numColors[step.num_color || 'blue'] || numColors.blue;
+    return `<div class="action-card">
+      <div class="action-num" style="background:${nc.split(';')[0].replace('background:','')};${nc.split(';')[1]}">${step.priority}</div>
+      <div class="action-content">
+        <div class="action-title">${step.title}</div>
+        <div class="action-detail">${step.detail}</div>
+        <span class="impact-chip impact-${step.impact||'med'}">${step.impact_label || 'Impacto estimado'}</span>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--text2);font-size:13px">No se generaron pasos de acción.</div>';
+
+  // Disputes
+  const dl = document.getElementById('disputesList');
+  dl.innerHTML = (data.disputes || []).map((d,i) => `
+    <div class="dispute-row">
+      <div class="dispute-info">
+        <div class="dispute-name">${d.creditor} — ${d.law || ''}</div>
+        <div class="dispute-reason">${d.reason}</div>
+      </div>
+      <span class="pill pill-gray">${d.bureau}</span>
+      <button class="btn-gen" onclick="generateLetter(${i})">Generar carta →</button>
+    </div>`).join('') || '<div style="color:var(--text2);font-size:13px;padding:12px 0">No se detectaron cuentas disputables.</div>';
+}
+
+// ─── TYPEWRITER ───────────────────────────────────────────────────────────────
+function typeText(el, text, speed = 10) {
+  el.innerHTML = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'typing-cursor';
+  el.appendChild(cursor);
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i]), cursor);
+      i++;
+    } else {
+      clearInterval(interval);
+      cursor.remove();
+    }
+  }, speed);
+}
+
+// ─── GENERATE DISPUTE LETTER ──────────────────────────────────────────────────
+async function generateLetter(idx) {
+  if (!currentReport) return;
+  const dispute = currentReport.data.disputes[idx];
+  if (!dispute) return;
+
+  document.getElementById('modalTitle').textContent = `Carta de disputa — ${dispute.creditor} · ${dispute.bureau}`;
+  document.getElementById('letterContent').innerHTML = 'Generando carta agresiva...<span class="typing-cursor"></span>';
+  document.getElementById('letterModal').style.display = 'flex';
+
+  const clientName = currentReport.clientName;
+  const bureau = dispute.bureau;
+
+  try {
+    const letter = await callClaude([{
+      role: 'user',
+      content: `You are an expert credit repair attorney and consumer rights advocate with 20+ years of experience fighting credit bureaus. Generate an EXTREMELY AGGRESSIVE, legally sophisticated dispute letter in English.
+
+CONSUMER: ${clientName}
+CREDIT BUREAU: ${bureau}
+CREDITOR/FURNISHER: ${dispute.creditor}
+DISPUTE REASON: ${dispute.reason}
+LAW: ${dispute.law || 'FCRA'}
+ACCOUNT DETAILS: ${dispute.reason}
+
+CRITICAL REQUIREMENTS — this letter must:
+
+1. LEGAL FRAMEWORK — cite ALL applicable laws aggressively:
+   - Fair Credit Reporting Act (FCRA) §§ 611, 623, 605, 616, 617
+   - Fair Debt Collection Practices Act (FDCPA) §§ 807, 809
+   - Truth in Lending Act (TILA) / Regulation Z
+   - Gramm-Leach-Bliley Act (GLBA) — privacy violations if applicable
+   - Fair Credit Billing Act (FCBA)
+   - Equal Credit Opportunity Act (ECOA)
+   - Uniform Commercial Code (UCC) Articles 3 & 9
+   - Any applicable state consumer protection laws
+
+2. METRO 2 COMPLIANCE ATTACK — challenge the furnisher's Metro 2 reporting:
+   - Demand proof the account is reported in full Metro 2 compliance format
+   - Challenge FCRA Date of First Delinquency (DOFD) accuracy
+   - Challenge Account Status Code accuracy
+   - Challenge Payment Rating fields
+   - Challenge Compliance Condition Codes
+   - Demand the EXACT Metro 2 data fields submitted to the bureau
+
+3. eOSCAR SYSTEM BYPASS STRATEGY:
+   - Explicitly state this dispute CANNOT be processed through eOSCAR automated system
+   - Demand MANUAL review by a qualified human investigator, not an automated dispute system
+   - State that routing this to eOSCAR without manual review violates FCRA §611(a)(1)
+   - Demand the name, title, and contact information of the human investigator assigned
+   - Reference Cushman v. Trans Union Corp and other case law requiring reasonable investigation
+
+4. EVIDENCE & VERIFICATION DEMANDS — demand ALL of the following:
+   - Original signed contract/agreement with consumer's wet signature
+   - Complete payment history with dates and amounts
+   - Chain of title/assignment documents if debt was sold
+   - Proof of permissible purpose for each inquiry
+   - Name and address of original creditor
+   - Date account was opened and date of first delinquency (EXACT dates)
+   - All collection notices sent (FDCPA compliance)
+   - Proof of license to collect in consumer's state
+   - All account statements for the life of the account
+
+5. LEGAL CONSEQUENCES & DEADLINES:
+   - 30-day investigation deadline (FCRA §611)
+   - State that failure to respond = delete under FCRA §611(a)(5)(A)
+   - Warn of statutory damages: $100–$1,000 per violation (FCRA §616)
+   - Warn of actual damages, punitive damages, and attorney fees
+   - Mention willful noncompliance = punitive damages under FCRA §616
+   - State consumer is prepared to pursue litigation in federal court
+
+6. FORMAT:
+   - Professional formal letter format
+   - Date: [DATE]
+   - Consumer info block: [FULL NAME], [ADDRESS], [CITY, STATE ZIP], [LAST 4 SSN], [DOB]
+   - Certified Mail tracking reference demand
+   - Multiple numbered sections with legal citations inline
+   - Strong closing demanding immediate action
+   - Signature block with "WITHOUT PREJUDICE" notation
+   - Length: 2-3 pages (comprehensive, not generic)
+
+7. TONE: Firm, legally authoritative, non-negotiable. This letter should make it clear the consumer knows their rights and is prepared to litigate. No apologetic language. No room for a form-response dismissal.
+
+Return ONLY the letter text. No explanations, no preamble.`
+    }], 4000);
+
+    typeText(document.getElementById('letterContent'), letter, 4);
+  } catch(e) {
+    document.getElementById('letterContent').textContent = 'Error generando la carta: ' + e.message;
+  }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('letterModal')) {
+    document.getElementById('letterModal').style.display = 'none';
+  }
+}
+
+function copyLetter() {
+  const text = document.getElementById('letterContent').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Carta copiada al portapapeles ✓'));
+}
+
+function toggleExportMenu() {
+  const m = document.getElementById('exportMenu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('exportMenuWrap')?.contains(e.target)) {
+    const m = document.getElementById('exportMenu');
+    if (m) m.style.display = 'none';
+  }
+});
+
+function printVersion(mode) {
+  document.getElementById('exportMenu').style.display = 'none';
+  if (!currentReport) return;
+
+  const isClient = mode === 'client';
+  const data = currentReport.data;
+  const clientName = currentReport.clientName;
+  const bureau = currentReport.bureau;
+  const date = new Date().toLocaleDateString('es-DO', {year:'numeric',month:'long',day:'numeric'});
+  const scoreNum   = document.getElementById('scoreNum')?.textContent || '—';
+  const scoreColor = document.getElementById('scoreNum')?.style.color || '#f59e0b';
+  const scoreLabel = document.getElementById('scoreLabel')?.textContent || '—';
+  const scoreTarget= document.getElementById('scoreTarget')?.textContent || '';
+  const needlePct  = document.getElementById('scoreNeedle')?.style.left || '50%';
+  const aiSummary  = document.getElementById('aiSummary')?.textContent || '';
+  const scoreColors = {green:'#22c55e', yellow:'#f59e0b', red:'#ef4444'};
+
+  // Score strength label
+  const scoreNum2 = parseInt(scoreNum) || 0;
+  const scoreStrength = scoreNum2 >= 740 ? 'EXCELENTE' : scoreNum2 >= 670 ? 'BUENO' : scoreNum2 >= 580 ? 'REGULAR' : 'NECESITA TRABAJO';
+
+  // Build factors bars for client version (simplified)
+  const factors = data.factors || [];
+  const factorBars = factors.map(f => {
+    const col = {red:'#ef4444',yellow:'#f59e0b',green:'#22c55e'}[f.color]||'#3b82f6';
+    const pct = f.pct || 0;
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;color:#e8eaed;font-weight:500">${f.name}</span>
+        <span style="font-size:12px;color:${col};font-weight:600">${f.label||pct+'%'}</span>
+      </div>
+      <div style="height:7px;background:#1e232b;border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:4px"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Key indicators
+  const alerts = data.alerts || [];
+  const criticalAlerts = alerts.filter(a => a.type === 'red' || a.type === 'yellow');
+  const positiveAlerts = alerts.filter(a => a.type === 'green');
+
+  // Accounts summary
+  const accounts = data.accounts || [];
+  const collections = accounts.filter(a => a.status === 'collection' || a.status === 'derogatory');
+  const lateAccounts = accounts.filter(a => a.status === 'late');
+  const currentAccounts = accounts.filter(a => a.status === 'current');
+  const highUtil = accounts.filter(a => a.utilization && parseInt(a.utilization) > 30);
+
+  // Action plan
+  const actionPlan = data.action_plan || [];
+  const disputes = data.disputes || [];
+
+  // Internal extras
+  const accountsTableHTML = isClient ? '' : `
+    <div style="page-break-inside:avoid;break-inside:avoid;margin-bottom:32px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6070;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e232b">DETALLE DE CUENTAS</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="border-bottom:1px solid #1e232b">
+          <th style="text-align:left;padding:6px 8px;color:#5a6070;font-weight:600;text-transform:uppercase;font-size:10px">Acreedor</th>
+          <th style="text-align:left;padding:6px 8px;color:#5a6070;font-weight:600;text-transform:uppercase;font-size:10px">Tipo</th>
+          <th style="text-align:left;padding:6px 8px;color:#5a6070;font-weight:600;text-transform:uppercase;font-size:10px">Balance</th>
+          <th style="text-align:left;padding:6px 8px;color:#5a6070;font-weight:600;text-transform:uppercase;font-size:10px">Estado</th>
+          <th style="text-align:left;padding:6px 8px;color:#5a6070;font-weight:600;text-transform:uppercase;font-size:10px">Impacto</th>
+        </tr></thead>
+        <tbody>
+          ${accounts.map(a => {
+            const stCol = {current:'#22c55e',collection:'#ef4444',late:'#f59e0b',derogatory:'#ef4444',closed:'#5a6070'}[a.status]||'#5a6070';
+            const impCol = {high:'#ef4444',medium:'#f59e0b',low:'#f59e0b',none:'#22c55e',positive:'#22c55e'}[a.impact_level]||'#5a6070';
+            return `<tr style="border-bottom:1px solid #111418">
+              <td style="padding:7px 8px;color:#e8eaed;font-weight:500">${a.creditor||'—'}</td>
+              <td style="padding:7px 8px;color:#8b9199">${a.type||'—'}</td>
+              <td style="padding:7px 8px;color:#e8eaed">${a.balance||'—'}</td>
+              <td style="padding:7px 8px"><span style="color:${stCol};font-weight:600;font-size:10px">${a.status_label||a.status||'—'}</span></td>
+              <td style="padding:7px 8px;color:${impCol};font-size:11px">${a.impact_explanation||'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  const disputesHTML = isClient ? '' : `
+    <div style="page-break-inside:avoid;break-inside:avoid;margin-bottom:32px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6070;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e232b">🔒 DISPUTAS IDENTIFICADAS — USO INTERNO</div>
+      ${disputes.map(d => `
+        <div style="padding:12px 14px;background:#111418;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:600;color:#e8eaed;margin-bottom:3px">${d.creditor} — ${d.law||''}</div>
+          <div style="font-size:12px;color:#8b9199">${d.reason}</div>
+          <div style="font-size:11px;color:#5a6070;margin-top:4px">Bureau: ${d.bureau}</div>
+        </div>`).join('') || '<div style="color:#5a6070;font-size:13px">No se detectaron disputas.</div>'}
+    </div>`;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${isClient ? 'Reporte de Crédito — ' + clientName : 'Reporte Interno — ' + clientName}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+body{font-family:'DM Sans',sans-serif;background:#0a0c0f;color:#e8eaed;font-size:14px;line-height:1.6}
+@page{margin:0;size:A4}
+@media print{
+  body{background:#0a0c0f!important}
+  .page{page-break-after:always}
+  .no-break{page-break-inside:avoid;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COVER -->
+<div class="page" style="min-height:100vh;background:linear-gradient(135deg,#0a0c0f 0%,#0d1926 50%,#0a0c0f 100%);display:flex;flex-direction:column;position:relative;overflow:hidden">
+  <!-- Background accent -->
+  <div style="position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(168,85,247,0.06) 0%,transparent 70%);pointer-events:none"></div>
+
+  <!-- Header -->
+  <div style="padding:32px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:36px;height:36px;background:#3b82f6;border-radius:9px;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" fill="white" viewBox="0 0 16 16"><path d="M8 1L2 4v4c0 3.5 2.5 6.5 6 7.5 3.5-1 6-4 6-7.5V4L8 1z"/></svg>
+      </div>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;background:linear-gradient(90deg,#60a5fa,#a78bfa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Moaied IQ</span>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#5a6070;text-transform:uppercase;letter-spacing:0.08em">${isClient ? 'Reporte del Cliente' : '🔒 Reporte Interno'}</div>
+      <div style="font-size:12px;color:#8b9199;margin-top:2px">${date}</div>
+    </div>
+  </div>
+
+  <!-- Cover content -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px">
+    <!-- Client name -->
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#5a6070;margin-bottom:12px">Análisis de Buró de Crédito</div>
+    <div style="font-size:48px;font-weight:600;letter-spacing:-1.5px;color:#e8eaed;margin-bottom:6px;text-align:center">${clientName}</div>
+    <div style="font-size:16px;color:#8b9199;margin-bottom:48px">${bureau}</div>
+
+    <!-- Big score display -->
+    <div style="text-align:center;margin-bottom:48px">
+      <div style="font-size:96px;font-weight:600;color:${scoreColor};letter-spacing:-4px;line-height:1">${scoreNum}</div>
+      <div style="font-size:16px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${scoreColor};margin-top:6px">${scoreStrength}</div>
+      <!-- Score bar -->
+      <div style="width:320px;height:10px;border-radius:5px;background:linear-gradient(to right,#ef4444 0%,#f59e0b 40%,#22c55e 75%,#3b82f6 100%);margin:16px auto 4px;position:relative">
+        <div style="position:absolute;top:-4px;left:${needlePct};transform:translateX(-50%);width:5px;height:18px;background:white;border-radius:3px;box-shadow:0 0 8px rgba(255,255,255,0.7)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;width:320px;margin:0 auto;font-size:10px;color:#5a6070">
+        <span>300</span><span>580</span><span>670</span><span>740</span><span>850</span>
+      </div>
+      <div style="font-size:13px;color:#8b9199;margin-top:10px">${scoreTarget}</div>
+    </div>
+
+    <!-- Key indicators grid -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:600px">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:600;color:${collections.length>0?'#ef4444':'#22c55e'}">${collections.length}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#5a6070;margin-top:4px">Colecciones</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:600;color:${lateAccounts.length>0?'#f59e0b':'#22c55e'}">${lateAccounts.length}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#5a6070;margin-top:4px">Tardíos</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:600;color:#22c55e">${currentAccounts.length}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#5a6070;margin-top:4px">Al Corriente</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px;font-weight:600;color:${highUtil.length>0?'#f59e0b':'#22c55e'}">${highUtil.length}</div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#5a6070;margin-top:4px">Alta Utiliz.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;font-size:11px;color:#5a6070">
+    <span>Moaied IQ · Credit Intelligence Platform</span>
+    <span>${isClient ? 'Preparado para el cliente' : 'CONFIDENCIAL — Uso Interno'}</span>
+    <span>Página 1 de 3</span>
+  </div>
+</div>
+
+<!-- PAGE 2: ANALYSIS -->
+<div class="page" style="min-height:100vh;background:#0a0c0f;display:flex;flex-direction:column">
+  <!-- Page header -->
+  <div style="padding:24px 40px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Moaied IQ</span>
+    <span style="font-size:12px;color:#5a6070">${clientName} · Análisis Detallado</span>
+  </div>
+
+  <div style="padding:32px 40px;flex:1">
+    <!-- AI Summary -->
+    <div class="no-break" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:14px;padding:20px;margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="width:6px;height:6px;border-radius:50%;background:#3b82f6"></div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#3b82f6">Resumen del Análisis IA</span>
+      </div>
+      <div style="font-size:13px;color:#e8eaed;line-height:1.8">${aiSummary}</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+      <!-- Score Factors -->
+      <div class="no-break">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6070;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e232b">Factores del Score</div>
+        ${factorBars}
+      </div>
+
+      <!-- Alerts -->
+      <div class="no-break">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6070;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1e232b">Puntos Clave Detectados</div>
+        ${criticalAlerts.map(a => `
+          <div style="display:flex;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;background:${a.type==='red'?'rgba(239,68,68,0.08)':'rgba(245,158,11,0.08)'};border-left:3px solid ${a.type==='red'?'#ef4444':'#f59e0b'}">
+            <span style="flex-shrink:0;font-size:14px">${a.icon||'!'}</span>
+            <div style="font-size:12px;color:#e8eaed;line-height:1.5">${a.text}</div>
+          </div>`).join('')}
+        ${positiveAlerts.map(a => `
+          <div style="display:flex;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;background:rgba(34,197,94,0.08);border-left:3px solid #22c55e">
+            <span style="flex-shrink:0;font-size:14px">${a.icon||'✓'}</span>
+            <div style="font-size:12px;color:#e8eaed;line-height:1.5">${a.text}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Internal: accounts table -->
+    ${accountsTableHTML}
+  </div>
+
+  <div style="padding:16px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;font-size:11px;color:#5a6070">
+    <span>Moaied IQ · Credit Intelligence Platform</span>
+    <span>${clientName} · ${date}</span>
+    <span>Página 2 de 3</span>
+  </div>
+</div>
+
+<!-- PAGE 3: ACTION PLAN -->
+<div style="min-height:100vh;background:#0a0c0f;display:flex;flex-direction:column">
+  <div style="padding:24px 40px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;background:linear-gradient(90deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Moaied IQ</span>
+    <span style="font-size:12px;color:#5a6070">${clientName} · Plan de Acción</span>
+  </div>
+
+  <div style="padding:32px 40px;flex:1">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6070;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid #1e232b">Plan de Acción Personalizado — Ordenado por Impacto</div>
+
+    ${actionPlan.map((step, i) => {
+      const impactColors = {high:'#ef4444', med:'#f59e0b', low:'#22c55e'};
+      const numBg = {high:'rgba(239,68,68,0.15)', med:'rgba(245,158,11,0.15)', low:'rgba(34,197,94,0.15)'}[step.impact]||'rgba(59,130,246,0.15)';
+      const numColor = impactColors[step.impact]||'#3b82f6';
+      return `<div class="no-break" style="display:flex;gap:16px;padding:16px;background:#111418;border:1px solid #1e232b;border-radius:12px;margin-bottom:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:${numBg};color:${numColor};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${step.priority}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:#e8eaed;margin-bottom:5px">${step.title}</div>
+          <div style="font-size:12px;color:#8b9199;line-height:1.7;margin-bottom:8px">${step.detail}</div>
+          <span style="font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;background:${numBg};color:${numColor}">${step.impact_label||'Impacto estimado'}</span>
+        </div>
+      </div>`;
+    }).join('')}
+
+    <!-- Internal disputes -->
+    ${disputesHTML}
+
+    <!-- Footer message for client -->
+    ${isClient ? `
+    <div class="no-break" style="margin-top:32px;background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(168,85,247,0.1));border:1px solid rgba(59,130,246,0.2);border-radius:14px;padding:24px;text-align:center">
+      <div style="font-size:18px;font-weight:600;color:#e8eaed;margin-bottom:8px">¿Listo para mejorar tu crédito?</div>
+      <div style="font-size:13px;color:#8b9199;line-height:1.7">Este plan fue diseñado específicamente para tu situación.<br>Cada paso ejecutado correctamente puede mejorar tu score significativamente.</div>
+    </div>` : ''}
+  </div>
+
+  <div style="padding:16px 40px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;font-size:11px;color:#5a6070">
+    <span>Moaied IQ · Credit Intelligence Platform</span>
+    <span>${isClient ? 'Este reporte es confidencial y fue preparado exclusivamente para ' + clientName : 'CONFIDENCIAL — Solo para uso del asesor'}</span>
+    <span>Página 3 de 3</span>
+  </div>
+</div>
+
+<` + `script>window.onload=()=>{window.print();}<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+function printReport() { printVersion('internal'); }
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function setProgress(pct, detail) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function stepActive(i) {
+  const el = document.getElementById('pstep'+i);
+  if (!el) return;
+  el.className = 'proc-step active';
+  el.querySelector('.proc-step-icon').innerHTML = '<div class="spinner"></div>';
+  el.querySelector('.proc-tag').className = 'proc-tag tag-active';
+  el.querySelector('.proc-tag').textContent = 'En curso';
+}
+
+function stepDone(i) {
+  const el = document.getElementById('pstep'+i);
+  if (!el) return;
+  el.className = 'proc-step done';
+  el.querySelector('.proc-step-icon').textContent = '✓';
+  el.querySelector('.proc-tag').className = 'proc-tag tag-done';
+  el.querySelector('.proc-tag').textContent = 'Listo';
+}
+
+// ─── AMBIENT BACKGROUND + MOUSE ───────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('ambientCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, raf2, shapes = [], orbs = [], gridLines = [];
+  let running = false;
+  let mx = -999, my = -999, tmx = -999, tmy = -999; // mouse actual vs smoothed
+
+  // Mouse cursor trail
+  const trail = [];
+  const TRAIL_LEN = 18;
+  for (let i = 0; i < TRAIL_LEN; i++) trail.push({ x: -999, y: -999 });
+  let trailIdx = 0;
+
+  // Cursor ripples on click
+  const ripples = [];
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('click', e => {
+    ripples.push({ x: e.clientX, y: e.clientY, r: 0, alpha: 0.5 });
+  });
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    buildScene();
+  }
+
+  function buildScene() {
+    shapes = []; orbs = []; gridLines = [];
+
+    const shapeCount = 18;
+    for (let i = 0; i < shapeCount; i++) {
+      shapes.push({
+        x: Math.random() * W, y: Math.random() * H,
+        size: 16 + Math.random() * 52,
+        type: ['hex','ring','tri','cross'][Math.floor(Math.random()*4)],
+        alpha: 0.04 + Math.random() * 0.065,
+        color: ['#60a5fa','#a78bfa','#38bdf8'][Math.floor(Math.random()*3)],
+        vx: (Math.random() - 0.5) * 0.45,   // faster
+        vy: (Math.random() - 0.5) * 0.38,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.008,  // faster rotation
+        pulseT: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.008 + Math.random() * 0.012,
+        // each shape slightly attracted/repelled by mouse
+        mouseFactor: (Math.random() - 0.5) * 0.00012
+      });
+    }
+
+    const orbData = [
+      { x:0.15, y:0.2,  r:0.22, color:'#3b82f6', alpha:0.045 },
+      { x:0.85, y:0.65, r:0.18, color:'#a78bfa', alpha:0.038 },
+      { x:0.5,  y:0.85, r:0.15, color:'#38bdf8', alpha:0.032 },
+    ];
+    orbData.forEach(o => orbs.push({
+      ...o, baseX:o.x, baseY:o.y,
+      t: Math.random()*Math.PI*2,
+      speed: 0.0014 + Math.random()*0.001,  // faster drift
+      driftAmp: 0.06
+    }));
+
+    const gridSpacing = 52;
+    for (let gx = gridSpacing; gx < W; gx += gridSpacing)
+      for (let gy = gridSpacing; gy < H; gy += gridSpacing)
+        gridLines.push({ x:gx, y:gy, alpha:0.025+Math.random()*0.02, pulse:Math.random()*Math.PI*2 });
+  }
+
+  function drawHex(cx, cy, r, rot) {
+    ctx.beginPath();
+    for (let i=0; i<6; i++) {
+      const a = rot + (Math.PI/3)*i;
+      i===0 ? ctx.moveTo(cx+r*Math.cos(a), cy+r*Math.sin(a))
+            : ctx.lineTo(cx+r*Math.cos(a), cy+r*Math.sin(a));
+    }
+    ctx.closePath();
+  }
+
+  function drawCross(cx, cy, r, rot) {
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(rot);
+    ctx.beginPath();
+    ctx.moveTo(-r,-r*0.15); ctx.lineTo(r,-r*0.15); ctx.lineTo(r,r*0.15); ctx.lineTo(-r,r*0.15); ctx.closePath();
+    ctx.beginPath();
+    ctx.moveTo(-r*0.15,-r); ctx.lineTo(r*0.15,-r); ctx.lineTo(r*0.15,r); ctx.lineTo(-r*0.15,r); ctx.closePath();
+    ctx.restore();
+  }
+
+  function frame() {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+
+    // Smooth mouse
+    tmx += (mx - tmx) * 0.06;
+    tmy += (my - tmy) * 0.06;
+
+    // Update trail
+    trail[trailIdx] = { x: tmx, y: tmy };
+    trailIdx = (trailIdx + 1) % TRAIL_LEN;
+
+    // ── Orbs ──
+    orbs.forEach(o => {
+      o.t += o.speed;
+      // Orbs drift slightly toward mouse
+      const mInfluenceX = tmx > 0 ? (tmx/W - o.baseX) * 0.012 : 0;
+      const mInfluenceY = tmy > 0 ? (tmy/H - o.baseY) * 0.012 : 0;
+      const cx = (o.baseX + Math.sin(o.t*1.3)*o.driftAmp + mInfluenceX) * W;
+      const cy = (o.baseY + Math.cos(o.t)*o.driftAmp*0.7 + mInfluenceY) * H;
+      const r  = o.r * Math.max(W,H);
+      const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      grad.addColorStop(0, o.color + Math.round(o.alpha*255).toString(16).padStart(2,'0'));
+      grad.addColorStop(1, o.color+'00');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    });
+
+    // ── Dot grid — brighten dots near mouse ──
+    gridLines.forEach(g => {
+      g.pulse += 0.012;
+      const dist = Math.hypot(g.x - tmx, g.y - tmy);
+      const mouseBright = tmx > 0 ? Math.max(0, 1 - dist/160) * 0.08 : 0;
+      const a = g.alpha * (0.7 + 0.3*Math.sin(g.pulse)) + mouseBright;
+      const r = 1 + (mouseBright > 0.01 ? mouseBright * 8 : 0);
+      ctx.beginPath(); ctx.arc(g.x, g.y, r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(96,165,250,${a})`; ctx.fill();
+    });
+
+    // ── Floating shapes — repel from mouse ──
+    shapes.forEach(s => {
+      // Mouse repulsion
+      if (tmx > 0) {
+        const dx = s.x - tmx, dy = s.y - tmy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 180 && dist > 0) {
+          const force = (180 - dist) / 180 * 0.35;
+          s.vx += (dx/dist) * force * 0.08;
+          s.vy += (dy/dist) * force * 0.08;
+        }
+        // Dampen so they don't fly away
+        s.vx *= 0.97; s.vy *= 0.97;
+        // Keep min speed
+        const speed = Math.hypot(s.vx, s.vy);
+        if (speed < 0.12) { s.vx += (Math.random()-0.5)*0.04; s.vy += (Math.random()-0.5)*0.04; }
+        if (speed > 1.2)  { s.vx *= 0.92; s.vy *= 0.92; }
+      }
+
+      s.x += s.vx; s.y += s.vy; s.rot += s.rotSpeed; s.pulseT += s.pulseSpeed;
+      if (s.x < -80) s.x = W+80; if (s.x > W+80) s.x = -80;
+      if (s.y < -80) s.y = H+80; if (s.y > H+80) s.y = -80;
+
+      const alpha = s.alpha * (0.75 + 0.25*Math.sin(s.pulseT));
+      ctx.strokeStyle = s.color; ctx.globalAlpha = alpha; ctx.lineWidth = 0.9;
+
+      if      (s.type==='hex')  { drawHex(s.x,s.y,s.size,s.rot); ctx.stroke(); }
+      else if (s.type==='ring') {
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.size*0.55,0,Math.PI*2); ctx.stroke();
+      }
+      else if (s.type==='tri')  {
+        ctx.beginPath();
+        for (let i=0; i<3; i++) {
+          const a = s.rot + (Math.PI*2/3)*i - Math.PI/2;
+          i===0 ? ctx.moveTo(s.x+s.size*Math.cos(a), s.y+s.size*Math.sin(a))
+                : ctx.lineTo(s.x+s.size*Math.cos(a), s.y+s.size*Math.sin(a));
+        }
+        ctx.closePath(); ctx.stroke();
+      }
+      else if (s.type==='cross') { drawCross(s.x,s.y,s.size*0.5,s.rot); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+    });
+
+    // ── Mouse trail ──
+    if (tmx > 0) {
+      for (let i = 0; i < TRAIL_LEN; i++) {
+        const idx = (trailIdx - 1 - i + TRAIL_LEN) % TRAIL_LEN;
+        const pt  = trail[idx];
+        if (pt.x < 0) continue;
+        const ratio = 1 - i / TRAIL_LEN;
+        const r = 3 * ratio;
+        const a = 0.18 * ratio * ratio;
+        const grad = ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,r*4);
+        grad.addColorStop(0, `rgba(96,165,250,${a})`);
+        grad.addColorStop(1, 'rgba(96,165,250,0)');
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, r*4, 0, Math.PI*2);
+        ctx.fillStyle = grad; ctx.fill();
+      }
+
+      // Cursor glow ring
+      const ringGrad = ctx.createRadialGradient(tmx,tmy,0,tmx,tmy,22);
+      ringGrad.addColorStop(0,   'rgba(96,165,250,0)');
+      ringGrad.addColorStop(0.6, 'rgba(96,165,250,0.04)');
+      ringGrad.addColorStop(0.85,'rgba(167,139,250,0.07)');
+      ringGrad.addColorStop(1,   'rgba(167,139,250,0)');
+      ctx.beginPath(); ctx.arc(tmx, tmy, 22, 0, Math.PI*2);
+      ctx.fillStyle = ringGrad; ctx.fill();
+    }
+
+    // ── Click ripples ──
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const rp = ripples[i];
+      rp.r += 3.5; rp.alpha -= 0.018;
+      if (rp.alpha <= 0) { ripples.splice(i,1); continue; }
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(96,165,250,${rp.alpha})`; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, rp.r*0.5, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(167,139,250,${rp.alpha*0.5})`; ctx.lineWidth = 0.8; ctx.stroke();
+    }
+
+    raf2 = requestAnimationFrame(frame);
+  }
+
+  window.startAmbient = function() {
+    if (running) return;
+    running = true; resize();
+    canvas.style.opacity = '1';
+    raf2 = requestAnimationFrame(frame);
+  };
+  window.stopAmbient = function() {
+    running = false; canvas.style.opacity = '0';
+    cancelAnimationFrame(raf2);
+    mx = -999; my = -999; tmx = -999; tmy = -999;
+  };
+  window.addEventListener('resize', () => { if (running) resize(); });
+})();
+
+// ─── COMPARISON MODE ──────────────────────────────────────────────────────────
+let cmpFiles = []; // [{file, label, bureau, date}]
+
+function switchMode(mode) {
+  document.getElementById('tabSingle').classList.toggle('active', mode==='single');
+  document.getElementById('tabCompare').classList.toggle('active', mode==='compare');
+  document.getElementById('modeSingle').style.display = mode==='single' ? '' : 'none';
+  document.getElementById('modeCompare').style.display = mode==='compare' ? '' : 'none';
+  if (mode==='compare' && cmpFiles.length===0) {
+    addCmpSlot(); addCmpSlot(); // start with 2 slots
+  }
+}
+
+function addCmpSlot() {
+  if (cmpFiles.length >= 3) { showToast('Máximo 3 burós para comparar'); return; }
+  const idx = cmpFiles.length;
+  cmpFiles.push({ file: null, label: '', bureau: 'Equifax', date: '' });
+  renderCmpSlots();
+}
+
+function renderCmpSlots() {
+  const labels = ['Buró más antiguo', 'Buró intermedio', 'Buró más reciente'];
+  const container = document.getElementById('cmpSlots');
+  container.innerHTML = cmpFiles.map((f, i) => `
+    <div class="cmp-slot ${f.file ? 'has-file' : ''}" id="cmpSlot${i}">
+      <div class="cmp-slot-num">${i+1}</div>
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          <input type="text" value="${f.label||labels[i]||''}" placeholder="${labels[i]||'Etiqueta'}"
+            oninput="cmpFiles[${i}].label=this.value"
+            style="flex:1;font-size:12px;padding:5px 8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);font-family:var(--font)">
+          <input type="date" value="${f.date||''}" onchange="cmpFiles[${i}].date=this.value"
+            style="font-size:12px;padding:5px 8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);font-family:var(--font)">
+        </div>
+        ${f.file
+          ? `<div style="display:flex;align-items:center;gap:6px">
+               <svg width="12" height="12" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+               <span style="font-size:12px;color:var(--green);font-weight:500">${f.file.name}</span>
+               <span style="font-size:11px;color:var(--text3)">(${formatBytes(f.file.size)})</span>
+             </div>`
+          : `<div style="font-size:12px;color:var(--text3)">Sin archivo — haz clic para seleccionar</div>`}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="selectCmpFile(${i})" style="font-size:11px;padding:5px 12px;background:var(--accentbg);color:var(--accent);border:1px solid var(--accentborder);border-radius:var(--radius);cursor:pointer;font-family:var(--font)">
+          ${f.file ? '↺ Cambiar' : '📄 Seleccionar'}
+        </button>
+        ${cmpFiles.length > 2 ? `<button onclick="removeCmpSlot(${i})" style="font-size:11px;padding:5px 10px;background:var(--redbg);color:var(--red);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);cursor:pointer;font-family:var(--font)">✕</button>` : ''}
+      </div>
+      <input type="file" accept=".pdf" id="cmpFileInput${i}" style="display:none" onchange="handleCmpFile(event,${i})">
+    </div>`).join('');
+
+  // Show/hide add slot button
+  document.getElementById('addSlotBtn').style.display = cmpFiles.length >= 3 ? 'none' : '';
+}
+
+function selectCmpFile(i) {
+  document.getElementById('cmpFileInput'+i).click();
+}
+
+function handleCmpFile(e, i) {
+  const file = e.target.files[0];
+  if (file) { cmpFiles[i].file = file; renderCmpSlots(); }
+}
+
+function removeCmpSlot(i) {
+  cmpFiles.splice(i, 1);
+  renderCmpSlots();
+}
+
+async function startComparison() {
+  const clientName = document.getElementById('cmpClientName').value.trim() || 'Cliente';
+  const notes = document.getElementById('cmpNotes').value.trim();
+  const errBox = document.getElementById('cmpErrorBox');
+  errBox.style.display = 'none';
+
+  const filled = cmpFiles.filter(f => f.file);
+  if (filled.length < 2) { errBox.textContent='Necesitas al menos 2 PDFs para comparar'; errBox.style.display='block'; return; }
+
+  const btn = document.getElementById('compareBtn');
+  btn.disabled = true; btn.textContent = 'Procesando...';
+  setView('viewProcessing');
+
+  // Reset steps
+  for (let i=0; i<5; i++) { const el=document.getElementById('pstep'+i); if(el){el.className='proc-step pending'; el.querySelector('.proc-step-icon').textContent=i+1; el.querySelector('.proc-tag').className='proc-tag tag-pending'; el.querySelector('.proc-tag').textContent='Pendiente';} }
+  document.getElementById('processingClient').textContent = `Comparando ${filled.length} burós de ${clientName}...`;
+  setProgress(0,'');
+
+  try {
+    const extracts = [];
+    for (let i=0; i<filled.length; i++) {
+      const f = filled[i];
+      stepActive(Math.min(i,1));
+      setProgress(5 + i*15, `Extrayendo PDF ${i+1} de ${filled.length}...`);
+      const text = await extractPdfText(f.file);
+      const chunks = chunkText(text, 90000);
+      let summary = text;
+      if (chunks.length > 1) {
+        const subs = [];
+        for (let c=0; c<chunks.length; c++) {
+          setProgress(10 + i*15 + Math.round(c/chunks.length*10), `Resumiendo bloque ${c+1}...`);
+          subs.push(await summarizeChunk(chunks[c], c+1, chunks.length, clientName, f.bureau));
+        }
+        summary = subs.join('\n\n--- SIGUIENTE BLOQUE ---\n\n');
+      }
+      extracts.push({ label: f.label||`Buró ${i+1}`, bureau: f.bureau, date: f.date||'', text: summary });
+    }
+    stepDone(0); stepDone(1); setProgress(55,'Textos extraídos');
+
+    stepActive(2); setProgress(60,'Analizando con IA...');
+    const result = await runComparisonAnalysis(extracts, clientName, notes);
+    stepDone(2); stepDone(3); stepDone(4); setProgress(100,'Comparación lista');
+
+    await new Promise(r=>setTimeout(r,400));
+    renderComparisonReport(result, clientName, filled);
+    setView('viewCompare');
+
+  } catch(e) {
+    setView('viewHome'); switchMode('compare');
+    errBox.textContent='Error: '+e.message; errBox.style.display='block';
+  } finally {
+    btn.disabled=false; btn.textContent='Comparar burós con IA →';
+  }
+}
+
+async function runComparisonAnalysis(extracts, clientName, notes) {
+  const notesLine = notes ? `\nNotas del asesor: ${notes}` : '';
+  const bureausText = extracts.map((e,i) =>
+    `=== BURÓ ${i+1}: ${e.label} (${e.bureau}${e.date?' · '+e.date:''}) ===\n${e.text.slice(0,40000)}`
+  ).join('\n\n');
+
+  const prompt = `Eres CreditIQ, experto en reparación de crédito en EE.UU. Analiza y COMPARA los siguientes ${extracts.length} reportes de buró de crédito del cliente "${clientName}".${notesLine}
+
+Los reportes están ordenados cronológicamente (el primero es el más antiguo, el último es el más reciente).
+
+Responde ÚNICAMENTE con JSON válido (sin markdown):
+
+{
+  "summary": "Resumen ejecutivo de 3-4 oraciones sobre la evolución del crédito del cliente entre los reportes.",
+  "score_evolution": [
+    {"label":"${extracts[0]?.label||'Buró 1'}","bureau":"${extracts[0]?.bureau||''}","date":"${extracts[0]?.date||''}","score":580,"color":"yellow"},
+    {"label":"${extracts[1]?.label||'Buró 2'}","bureau":"${extracts[1]?.bureau||''}","date":"${extracts[1]?.date||''}","score":620,"color":"yellow"}
+  ],
+  "changes": [
+    {
+      "type": "positive",
+      "title": "Título del cambio positivo",
+      "detail": "Explicación detallada del cambio y su impacto en el score",
+      "impact": "+15 pts estimados"
+    },
+    {
+      "type": "negative",
+      "title": "Título del cambio negativo",
+      "detail": "Explicación detallada",
+      "impact": "-10 pts estimados"
+    },
+    {
+      "type": "neutral",
+      "title": "Sin cambio relevante",
+      "detail": "Explicación",
+      "impact": "Sin impacto"
+    }
+  ],
+  "accounts_comparison": [
+    {
+      "creditor": "Chase Freedom",
+      "type": "Tarjeta",
+      "changes": [
+        {"report":"${extracts[0]?.label||'Buró 1'}","balance":"$4,200","status":"Al corriente","utilization":"84%"},
+        {"report":"${extracts[1]?.label||'Buró 2'}","balance":"$2,800","status":"Al corriente","utilization":"56%"}
+      ],
+      "trend": "mejora",
+      "trend_detail": "Reducción de utilización del 84% al 56%"
+    }
+  ],
+  "new_accounts": ["Cuenta nueva: Capital One Secured - $500 límite"],
+  "removed_accounts": ["Cuenta eliminada: Midland Collections - disputada exitosamente"],
+  "action_plan": [
+    {
+      "priority": 1,
+      "title": "Paso de acción basado en la comparación",
+      "detail": "Descripción detallada del paso",
+      "impact": "high",
+      "impact_label": "+20-30 pts estimados"
+    }
+  ],
+  "overall_trend": "mejora",
+  "trend_summary": "El cliente muestra una mejora consistente. El score aumentó X puntos en Y meses.",
+  "disputes": [
+    {
+      "creditor": "Capital One",
+      "reason": "FCRA §611 — Fecha de actividad incorrecta — inconsistencia entre reportes",
+      "bureau": "Equifax",
+      "law": "FCRA §611"
+    }
+  ]
+}
+
+Reglas:
+- score_evolution: score real de cada buró (estima si no está explícito), color: green>720, yellow 580-720, red<580
+- changes: todos los cambios importantes entre el primer y último reporte (mínimo 4, máximo 8)
+- changes.type: "positive", "negative", o "neutral"
+- accounts_comparison: las cuentas que aparecen en múltiples reportes con sus cambios
+- overall_trend: "mejora", "deterioro", o "estable"
+- action_plan: mínimo 4 pasos priorizados para continuar la mejora
+- disputes: cuentas con base real para disputar detectadas en la comparación (inconsistencias entre reportes, errores Metro 2, DOFD incorrecta, etc.). Máximo 5.
+
+REPORTES:
+${bureausText}`;
+
+  const json = await callClaude([{role:'user', content:prompt}], 16000);
+  let cleaned = json.trim().replace(/^```[a-z]*\n?/i,'').replace(/\n?```$/i,'').trim();
+  const start = cleaned.indexOf('{'), end = cleaned.lastIndexOf('}');
+  if (start===-1) throw new Error('No se generó JSON válido');
+  return JSON.parse(cleaned.slice(start, end+1));
+}
+
+function renderComparisonReport(data, clientName, files) {
+  currentCmpReport = { data, clientName, files };
+  const initials = clientName.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('cmpAvatar').textContent = initials;
+  document.getElementById('cmpTitle').textContent = `${clientName} — Comparación de ${files.length} burós`;
+  document.getElementById('cmpSub').textContent = `Análisis comparativo · ${new Date().toLocaleDateString('es-DO')}`;
+
+  const trendColor = {mejora:'var(--green)', deterioro:'var(--red)', estable:'var(--yellow)'}[data.overall_trend]||'var(--yellow)';
+  const trendIcon = {mejora:'↑', deterioro:'↓', estable:'→'}[data.overall_trend]||'→';
+  const scoreColors = {green:'#22c55e', yellow:'#f59e0b', red:'#ef4444'};
+
+  const body = document.getElementById('cmpReportBody');
+  body.innerHTML = `
+
+    <!-- AI SUMMARY -->
+    <div class="ai-box" style="margin-bottom:24px">
+      <div class="ai-box-header">
+        <svg width="14" height="14" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="ai-chip">Análisis comparativo IA</span>
+        <span style="margin-left:auto;font-size:12px;font-weight:600;color:${trendColor}">${trendIcon} ${data.overall_trend?.toUpperCase()}</span>
+      </div>
+      <div class="ai-box-text">${data.summary||''}</div>
+      ${data.trend_summary ? `<div style="margin-top:8px;font-size:12px;color:var(--accent);font-weight:500">${data.trend_summary}</div>` : ''}
+    </div>
+
+    <!-- SCORE EVOLUTION -->
+    <div class="section" style="margin-bottom:24px">
+      <div class="section-header"><span class="section-title">Evolución del score</span></div>
+      <div class="cmp-scores-row" style="display:flex;gap:12px;flex-wrap:wrap">
+        ${(data.score_evolution||[]).map((s,i) => {
+          const c = scoreColors[s.color]||'#f59e0b';
+          const prev = data.score_evolution[i-1];
+          const diff = prev ? s.score - prev.score : null;
+          return `<div style="flex:1;min-width:160px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">${s.label}</div>
+            <div style="font-size:42px;font-weight:600;color:${c};letter-spacing:-2px;line-height:1">${s.score}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px">${s.bureau}${s.date?' · '+s.date:''}</div>
+            ${diff!==null ? `<div style="margin-top:8px;font-size:13px;font-weight:600;color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'}">${diff>0?'+':''}${diff} pts vs anterior</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- CHANGES -->
+    <div class="section" style="margin-bottom:24px">
+      <div class="section-header"><span class="section-title">Cambios detectados entre reportes</span><span class="section-count">${(data.changes||[]).length} cambios</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(data.changes||[]).map(c => {
+          const colors = {positive:'var(--greenbg);border-left:3px solid var(--green)', negative:'var(--redbg);border-left:3px solid var(--red)', neutral:'var(--bg3);border-left:3px solid var(--border2)'};
+          const icons = {positive:'↑', negative:'↓', neutral:'→'};
+          const textColors = {positive:'var(--green)', negative:'var(--red)', neutral:'var(--text2)'};
+          return `<div style="display:flex;gap:12px;padding:12px 14px;background:${colors[c.type]||colors.neutral};border-radius:var(--radius-lg)">
+            <span style="font-size:16px;color:${textColors[c.type]};flex-shrink:0;font-weight:700">${icons[c.type]||'→'}</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${c.title}</div>
+              <div style="font-size:12px;color:var(--text2);line-height:1.6">${c.detail}</div>
+            </div>
+            <span style="font-size:11px;color:${textColors[c.type]};font-weight:600;white-space:nowrap;flex-shrink:0">${c.impact}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- NEW / REMOVED ACCOUNTS -->
+    ${(data.new_accounts?.length || data.removed_accounts?.length) ? `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      ${data.new_accounts?.length ? `
+      <div style="background:var(--greenbg);border:1px solid rgba(34,197,94,0.2);border-radius:var(--radius-lg);padding:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">✓ Cuentas nuevas / mejoradas</div>
+        ${data.new_accounts.map(a=>`<div style="font-size:12px;color:var(--text);padding:4px 0;border-bottom:1px solid rgba(34,197,94,0.1)">${a}</div>`).join('')}
+      </div>` : ''}
+      ${data.removed_accounts?.length ? `
+      <div style="background:var(--accentbg);border:1px solid var(--accentborder);border-radius:var(--radius-lg);padding:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">✓ Cuentas eliminadas / resueltas</div>
+        ${data.removed_accounts.map(a=>`<div style="font-size:12px;color:var(--text);padding:4px 0;border-bottom:1px solid var(--accentborder)">${a}</div>`).join('')}
+      </div>` : ''}
+    </div>` : ''}
+
+    <!-- ACCOUNTS COMPARISON TABLE -->
+    ${data.accounts_comparison?.length ? `
+    <div class="section" style="margin-bottom:24px">
+      <div class="section-header"><span class="section-title">Comparación de cuentas</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Acreedor</th><th>Tipo</th>
+            ${(data.accounts_comparison[0]?.changes||[]).map(c=>`<th>${c.report}</th>`).join('')}
+            <th>Tendencia</th>
+          </tr></thead>
+          <tbody>
+            ${(data.accounts_comparison||[]).map(a => {
+              const trendColor = a.trend==='mejora'?'pill-green':a.trend==='deterioro'?'pill-red':'pill-gray';
+              return `<tr>
+                <td style="font-weight:500">${a.creditor}</td>
+                <td style="color:var(--text2)">${a.type}</td>
+                ${(a.changes||[]).map(c=>`<td style="font-size:11px">
+                  <div style="font-weight:500">${c.balance||'—'}</div>
+                  <div style="color:var(--text2)">${c.status||''}</div>
+                  ${c.utilization?`<span class="pill pill-gray" style="font-size:10px">${c.utilization}</span>`:''}
+                </td>`).join('')}
+                <td>
+                  <span class="pill ${trendColor}" style="font-size:10px">${a.trend||'—'}</span>
+                  ${a.trend_detail?`<div style="font-size:10px;color:var(--text2);margin-top:3px">${a.trend_detail}</div>`:''}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : ''}
+
+    <!-- ACTION PLAN -->
+    <div class="section">
+      <div class="section-header"><span class="section-title">Plan de acción — próximos pasos</span></div>
+      <div id="cmpActionPlan">
+        ${(data.action_plan||[]).map(step => {
+          const numColors = {high:'background:var(--redbg);color:var(--red)', med:'background:var(--yellowbg);color:var(--yellow)', low:'background:var(--greenbg);color:var(--green)'};
+          const nc = numColors[step.impact]||numColors.med;
+          return `<div class="action-card" style="margin-bottom:10px">
+            <div class="action-num" style="${nc}">${step.priority}</div>
+            <div class="action-content">
+              <div class="action-title">${step.title}</div>
+              <div class="action-detail">${step.detail}</div>
+              <span class="impact-chip impact-${step.impact||'med'}">${step.impact_label||'Impacto estimado'}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- DISPUTES — screen only, hidden on print -->
+    <div class="section no-print" id="cmpDisputesSection" style="display:none">
+      <div style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;background:rgba(245,158,11,0.12);color:var(--yellow);padding:3px 10px;border-radius:20px;margin-bottom:14px;border:0.5px solid rgba(245,158,11,0.25)">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8l-5-5-5 5M12 3v12"/><rect x="3" y="15" width="18" height="6" rx="1"/></svg>
+        Solo visible en pantalla · No aparece al exportar PDF
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px">
+          <svg width="14" height="14" fill="none" stroke="var(--yellow)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Cartas de disputa — Uso interno
+        </div>
+        <span id="cmpDisputeCount" style="font-size:11px;color:var(--text3)"></span>
+      </div>
+      <div id="cmpDisputesList"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border);margin-top:12px">
+        <svg width="13" height="13" fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 9V4a1 1 0 011-1h10a1 1 0 011 1v5"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+        <span style="font-size:12px;color:var(--text3)">Esta sección no se incluye al exportar PDF — ni versión cliente ni interna. Solo visible en pantalla para el asesor.</span>
+      </div>
+    </div>
+  `;
+
+  // Render disputes section
+  const cmpDisputesData = data.disputes || [];
+  if (cmpDisputesData.length) {
+    document.getElementById('cmpDisputesSection').style.display = '';
+    document.getElementById('cmpDisputeCount').textContent = cmpDisputesData.length + ' disputas detectadas';
+    document.getElementById('cmpDisputesList').innerHTML = cmpDisputesData.map((d, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:var(--radius-lg);margin-bottom:8px;border:1px solid var(--border);transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--accentborder)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${d.creditor} — ${d.law||''}</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">${d.reason}</div>
+        </div>
+        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--redbg);color:var(--red);font-weight:500;white-space:nowrap;border:0.5px solid rgba(239,68,68,0.2)">${d.law||'FCRA'}</span>
+        <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--bg3);color:var(--text2);border:0.5px solid var(--border);white-space:nowrap">${d.bureau||'Todos'}</span>
+        <button onclick="generateCmpLetter(${i})" style="font-size:12px;padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:var(--radius);cursor:pointer;font-family:var(--font);font-weight:500;white-space:nowrap;transition:all 0.15s" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='var(--accent)'">Generar carta →</button>
+      </div>`).join('') || '<div style="color:var(--text2);font-size:13px;padding:12px 0">No se detectaron cuentas disputables.</div>';
+  }
+}
+
+// ─── GENERATE COMPARISON DISPUTE LETTER ──────────────────────────────────────
+async function generateCmpLetter(idx) {
+  if (!currentCmpReport) return;
+  const dispute = currentCmpReport.data.disputes?.[idx];
+  if (!dispute) return;
+
+  document.getElementById('modalTitle').textContent = `Carta de disputa — ${dispute.creditor} · ${dispute.bureau||''}`;
+  document.getElementById('letterContent').innerHTML = 'Generando carta agresiva...<span class="typing-cursor"></span>';
+  document.getElementById('letterModal').style.display = 'flex';
+
+  const clientName = currentCmpReport.clientName;
+  const bureau = dispute.bureau || 'los tres bureaus';
+
+  try {
+    const letter = await callClaude([{
+      role: 'user',
+      content: `You are an expert credit repair attorney and consumer rights advocate with 20+ years of experience fighting credit bureaus. Generate an EXTREMELY AGGRESSIVE, legally sophisticated dispute letter in English.
+
+CONSUMER: ${clientName}
+CREDIT BUREAU: ${bureau}
+CREDITOR/FURNISHER: ${dispute.creditor}
+DISPUTE REASON: ${dispute.reason}
+LAW: ${dispute.law || 'FCRA'}
+ACCOUNT DETAILS: ${dispute.reason}
+
+CRITICAL REQUIREMENTS — this letter must:
+
+1. LEGAL FRAMEWORK — cite ALL applicable laws aggressively:
+   - Fair Credit Reporting Act (FCRA) §§ 611, 623, 605, 616, 617
+   - Fair Debt Collection Practices Act (FDCPA) §§ 807, 809
+   - Truth in Lending Act (TILA) / Regulation Z
+   - Gramm-Leach-Bliley Act (GLBA) — privacy violations if applicable
+   - Fair Credit Billing Act (FCBA)
+   - Equal Credit Opportunity Act (ECOA)
+   - Uniform Commercial Code (UCC) Articles 3 & 9
+   - Any applicable state consumer protection laws
+
+2. METRO 2 COMPLIANCE ATTACK — challenge the furnisher's Metro 2 reporting:
+   - Demand proof the account is reported in full Metro 2 compliance format
+   - Challenge FCRA Date of First Delinquency (DOFD) accuracy
+   - Challenge Account Status Code accuracy
+   - Challenge Payment Rating fields
+   - Challenge Compliance Condition Codes
+   - Demand the EXACT Metro 2 data fields submitted to the bureau
+
+3. eOSCAR SYSTEM BYPASS STRATEGY:
+   - Explicitly state this dispute CANNOT be processed through eOSCAR automated system
+   - Demand MANUAL review by a qualified human investigator, not an automated dispute system
+   - State that routing this to eOSCAR without manual review violates FCRA §611(a)(1)
+   - Demand the name, title, and contact information of the human investigator assigned
+   - Reference Cushman v. Trans Union Corp and other case law requiring reasonable investigation
+
+4. EVIDENCE & VERIFICATION DEMANDS — demand ALL of the following:
+   - Original signed contract/agreement with consumer's wet signature
+   - Complete payment history with dates and amounts
+   - Chain of title/assignment documents if debt was sold
+   - Proof of permissible purpose for each inquiry
+   - Name and address of original creditor
+   - Date account was opened and date of first delinquency (EXACT dates)
+   - All collection notices sent (FDCPA compliance)
+   - Proof of license to collect in consumer's state
+   - All account statements for the life of the account
+
+5. LEGAL CONSEQUENCES & DEADLINES:
+   - 30-day investigation deadline (FCRA §611)
+   - State that failure to respond = delete under FCRA §611(a)(5)(A)
+   - Warn of statutory damages: $100–$1,000 per violation (FCRA §616)
+   - Warn of actual damages, punitive damages, and attorney fees
+   - Mention willful noncompliance = punitive damages under FCRA §616
+   - State consumer is prepared to pursue litigation in federal court
+
+6. FORMAT:
+   - Professional formal letter format
+   - Date: [DATE]
+   - Consumer info block: [FULL NAME], [ADDRESS], [CITY, STATE ZIP], [LAST 4 SSN], [DOB]
+   - Certified Mail tracking reference demand
+   - Multiple numbered sections with legal citations inline
+   - Strong closing demanding immediate action
+   - Signature block with "WITHOUT PREJUDICE" notation
+   - Length: 2-3 pages (comprehensive, not generic)
+
+7. TONE: Firm, legally authoritative, non-negotiable. This letter should make it clear the consumer knows their rights and is prepared to litigate. No apologetic language. No room for a form-response dismissal.
+
+Return ONLY the letter text. No explanations, no preamble.`
+    }], 4000);
+
+    typeText(document.getElementById('letterContent'), letter, 4);
+  } catch(e) {
+    document.getElementById('letterContent').textContent = 'Error generando la carta: ' + e.message;
+  }
+}
+(function() {
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
+  const rand = () => CHARS[Math.floor(Math.random() * CHARS.length)];
+
+  function scrambleLine(el, finalText, duration, delay, charClass) {
+    const chars = finalText.split('');
+    el.innerHTML = chars.map((c, i) =>
+      c === ' ' ? '<span style="display:inline-block;min-width:0.3em">&nbsp;</span>'
+                : `<span class="${charClass} scrambling" data-final="${c}">${rand()}</span>`
+    ).join('');
+
+    const spans = el.querySelectorAll('.' + charClass);
+    const total = spans.length;
+    if (!total) return;
+    const revealInterval = duration / total;
+
+    spans.forEach((span, i) => {
+      const t = setInterval(() => { span.textContent = rand(); }, 50);
+      setTimeout(() => {
+        clearInterval(t);
+        span.textContent = span.dataset.final;
+        span.classList.remove('scrambling');
+        span.style.opacity = '0.5';
+        setTimeout(() => { span.style.transition='opacity 0.08s'; span.style.opacity='1'; }, 50);
+
+        if (charClass === 'hero-char2') {
+          const glowBg = document.getElementById('heroGlowBg');
+          if (glowBg) glowBg.textContent = finalText.slice(0, i + 1);
+        }
+      }, delay + i * revealInterval);
+    });
+  }
+
+  window.addEventListener('load', () => {
+    const line1 = document.getElementById('heroLine1');
+    const line2 = document.getElementById('heroLine2');
+    const glowBg = document.getElementById('heroGlowBg');
+    if (!line1 || !line2) return;
+
+    function run() {
+      if (glowBg) glowBg.textContent = '';
+      line1.innerHTML = '';
+      scrambleLine(line2, 'Moaied IQ', 900, 0, 'hero-char2');
+    }
+    run();
+    setInterval(run, 9000);
+  });
+})();
+// ─── INTRO ANIMATION ──────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('introCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], raf;
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  function rand(a, b) { return Math.random() * (b - a) + a; }
+
+  for (let i = 0; i < 90; i++) {
+    particles.push({
+      x: rand(0,W), y: rand(0,H), r: rand(0.5,2.2),
+      vx: rand(-0.15,0.15), vy: rand(-0.2,-0.05),
+      alpha: rand(0.1,0.6),
+      color: ['#60a5fa','#a78bfa','#38bdf8','#818cf8','#e8eaed'][Math.floor(rand(0,5))]
+    });
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -4) { p.y = H+4; p.x = rand(0,W); }
+      if (p.x < -4) p.x = W+4;
+      if (p.x > W+4) p.x = -4;
+    });
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  const iq = document.getElementById('ic-iq');
+  if (!iq) return;
+  iq.style.transition = 'filter 0.6s ease, transform 0.6s ease';
+  let pulse = true;
+  const pulseInterval = setInterval(() => {
+    if (!pulse) return;
+    iq.style.filter = 'drop-shadow(0 0 32px rgba(96,165,250,0.9))';
+    iq.style.transform = 'scale(1.06)';
+    setTimeout(() => {
+      iq.style.filter = 'drop-shadow(0 0 14px rgba(96,165,250,0.45))';
+      iq.style.transform = 'scale(1)';
+    }, 500);
+  }, 1100);
+
+  const seq = [
+    ['ic-m',900],['ic-o',1150],['ic-a',1380],
+    ['ic-i',1600],['ic-e',1820],['ic-d',2050],
+  ];
+  seq.forEach(([id,delay]) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) { el.style.opacity='1'; el.style.transform='translateY(0) translateX(0) rotate(0deg) scale(1)'; }
+    }, delay);
+  });
+  setTimeout(() => {
+    const sp = document.getElementById('ic-space');
+    if (sp) sp.style.opacity = '1';
+  }, 2050);
+
+  setTimeout(() => {
+    pulse = false; clearInterval(pulseInterval);
+    iq.style.filter = 'drop-shadow(0 0 48px rgba(96,165,250,1))';
+    iq.style.transform = 'scale(1.12)';
+    setTimeout(() => {
+      iq.style.filter = 'drop-shadow(0 0 20px rgba(96,165,250,0.5))';
+      iq.style.transform = 'scale(1)';
+    }, 350);
+  }, 2300);
+
+  setTimeout(() => {
+    const tl = document.getElementById('introTagline');
+    if (tl) tl.style.color = 'rgba(139,145,153,0.7)';
+  }, 2500);
+
+  // FLY TO TITLE
+  setTimeout(() => {
+    const overlay = document.getElementById('introOverlay');
+    const heroLine2 = document.getElementById('heroLine2');
+    if (!heroLine2 || !overlay) { if(overlay) overlay.style.display='none'; return; }
+
+    overlay.style.pointerEvents = 'none';
+    const targetRect = heroLine2.getBoundingClientRect();
+    const targetCx = targetRect.left + targetRect.width / 2;
+    const targetCy = targetRect.top  + targetRect.height / 2;
+
+    const introTitle = document.getElementById('introTitle');
+    const introRect  = introTitle.getBoundingClientRect();
+    const introCx    = introRect.left + introRect.width / 2;
+    const introCy    = introRect.top  + introRect.height / 2;
+
+    const dx = targetCx - introCx;
+    const dy = targetCy - introCy;
+    const introFontSize = parseFloat(getComputedStyle(introTitle).fontSize) || 120;
+    const scale = 88 / introFontSize;
+
+    const tl = document.getElementById('introTagline');
+    if (tl) { tl.style.transition='opacity 0.25s'; tl.style.opacity='0'; }
+
+    introTitle.style.transition = 'transform 0.75s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease 0.62s';
+    introTitle.style.transformOrigin = 'center center';
+    introTitle.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')';
+    introTitle.style.opacity = '0';
+
+    canvas.style.transition = 'opacity 0.4s ease';
+    canvas.style.opacity = '0';
+
+    setTimeout(() => {
+      overlay.style.transition = 'background 0.5s ease';
+      overlay.style.background = 'transparent';
+
+      // Show login view after intro
+      setView('viewLogin');
+      const card = document.querySelector('.login-card');
+      const logo = document.querySelector('.login-logo');
+      if (card) { card.style.opacity='0'; card.style.transform='translateY(16px)'; card.style.transition='opacity 0.5s ease, transform 0.5s ease'; }
+      if (logo) { logo.style.opacity='0'; logo.style.transition='opacity 0.5s ease'; }
+      setTimeout(() => {
+        if (card) { card.style.opacity='1'; card.style.transform='translateY(0)'; }
+        if (logo) { logo.style.opacity='1'; }
+        setTimeout(() => { document.getElementById('loginUser').focus(); }, 200);
+      }, 80);
+
+      setTimeout(() => {
+        cancelAnimationFrame(raf);
+        overlay.style.display = 'none';
+      }, 700);
+    }, 600);
+  }, 3100);
+})();
+</script>
+</body>
+</html>
