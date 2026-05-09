@@ -469,8 +469,8 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   </div>
   <div class="nav-right">
     <div class="api-status" id="apiStatus">
-      <div class="api-dot" id="apiDot"></div>
-      <span id="apiStatusText">Sistema listo</span>
+      <div class="api-dot off" id="apiDot"></div>
+      <span id="apiStatusText">API no configurada</span>
     </div>
     <button class="btn-ghost" onclick="showHome()">Nuevo análisis</button>
     <button class="btn-ghost" id="adminNavBtn" onclick="openAdmin()" style="display:none;color:var(--yellow)">⚙ Usuarios</button>
@@ -637,6 +637,16 @@ tr:hover td{background:rgba(255,255,255,0.02)}
         Comparar burós
         <span style="font-size:10px;background:var(--accentbg);color:var(--accent);padding:1px 7px;border-radius:20px;margin-left:4px;font-weight:600">NUEVO</span>
       </button>
+    </div>
+
+    <!-- API KEY -->
+    <div class="api-section reveal-item" id="ri-1">
+      <label>ANTHROPIC API KEY</label>
+      <div class="api-row">
+        <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+        <button class="btn-primary" onclick="saveApiKey()">Guardar</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Tu clave se guarda solo en este navegador. Nunca se envía a ningún servidor externo.</div>
     </div>
 
     <!-- SINGLE MODE -->
@@ -947,6 +957,11 @@ const ADMIN = { user: 'admin', pass: 'moaied2024' };
 
 // Init
 window.onload = () => {
+  const savedKey = localStorage.getItem('ciq_apikey');
+  if (savedKey) {
+    document.getElementById('apiKeyInput').value = savedKey;
+    updateApiStatus(true);
+  }
   setupDragDrop();
   startLoginCanvas();
 };
@@ -999,7 +1014,7 @@ async function doLogin() {
       setTimeout(() => {
         stopLoginCanvas(); setView('viewHome');
         if (window.startAmbient) window.startAmbient();
-        const items=['ri-nav','ri-0','uploadZone','ri-3'];
+        const items=['ri-nav','ri-0','ri-1','uploadZone','ri-3'];
         items.forEach((id,i) => setTimeout(() => {
           const el=document.getElementById(id); if(el) el.classList.add('visible');
         }, i*100));
@@ -1285,9 +1300,20 @@ function doLogout() {
   }, 100);
 }
 
-function updateApiStatus() {
-  document.getElementById('apiDot').className = 'api-dot';
-  document.getElementById('apiStatusText').textContent = 'Sistema listo';
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant-') && !val.startsWith('sk-')) {
+    showToast('Ingresa una API key válida de Anthropic');
+    return;
+  }
+  localStorage.setItem('ciq_apikey', val);
+  updateApiStatus(true);
+  showToast('API key guardada ✓');
+}
+
+function updateApiStatus(ok) {
+  document.getElementById('apiDot').className = 'api-dot' + (ok ? '' : ' off');
+  document.getElementById('apiStatusText').textContent = ok ? 'API conectada' : 'API no configurada';
 }
 
 function setupDragDrop() {
@@ -1594,11 +1620,13 @@ ${text.slice(0, 60000)}`;
 
 // ─── CALL CLAUDE API ──────────────────────────────────────────────────────────
 async function callClaude(messages, max_tokens = 4000) {
+  const key = localStorage.getItem('ciq_apikey') || '';
+  if (!key) throw new Error('Configura tu API key de Anthropic primero.');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': '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',
+      'x-api-key': key,
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
