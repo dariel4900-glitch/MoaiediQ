@@ -1610,7 +1610,7 @@ ${text.slice(0, 60000)}`;
 
 // ─── CALL CLAUDE API ──────────────────────────────────────────────────────────
 async function callClaude(messages, max_tokens = 4000) {
-  const res = await fetch('https://reliable-sundae-086df9.netlify.app/.netlify/functions/claude', {
+  const res = await fetch('https://tprgaqbrtudsgngpvbzo.supabase.co/functions/v1/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens, messages })
