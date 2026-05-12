@@ -639,16 +639,6 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       </button>
     </div>
 
-    <!-- API KEY -->
-    <div class="api-section reveal-item" id="ri-1">
-      <label>ANTHROPIC API KEY</label>
-      <div class="api-row">
-        <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
-        <button class="btn-primary" onclick="saveApiKey()">Guardar</button>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:6px">Tu clave se guarda solo en este navegador. Nunca se envía a ningún servidor externo.</div>
-    </div>
-
     <!-- SINGLE MODE -->
     <div id="modeSingle">
       <div class="upload-zone-inner" id="uploadZoneInner" onclick="document.getElementById('fileInput').click()">
@@ -1620,16 +1610,9 @@ ${text.slice(0, 60000)}`;
 
 // ─── CALL CLAUDE API ──────────────────────────────────────────────────────────
 async function callClaude(messages, max_tokens = 4000) {
-  const key = localStorage.getItem('ciq_apikey') || '';
-  if (!key) throw new Error('Configura tu API key de Anthropic primero.');
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('https://reliable-sundae-086df9.netlify.app/.netlify/functions/claude', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model: 'claude-sonnet-4-5', max_tokens, messages })
   });
 
